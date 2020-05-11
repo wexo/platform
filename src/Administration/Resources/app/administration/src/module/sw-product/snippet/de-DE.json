@@ -177,7 +177,19 @@
       "textDeleteConfirm": "Möchtest Du das Produkt \"{name}\" wirklich löschen? | Möchtest Du diese {count} Produkte wirklich löschen?",
       "titleSidebarItemRefresh": "Aktualisieren",
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert."
+      "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert.",
+      "filter": {
+        "manufacturer" : {
+          "label": "Manufacturer"
+        },
+        "activeInactive": {
+          "label": "Only show Active products"
+        },
+        "productNumber": {
+          "label": "Product Number",
+          "placeholder": "Product Number..."
+        }
+      }
     },
     "detail": {
       "textHeadline": "Neues Produkt",

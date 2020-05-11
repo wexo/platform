@@ -15,7 +15,7 @@ Component.register('sw-settings-index', {
 
     computed: {
         settingsGroups() {
-            const settingsGroups = Object.entries(Shopware.State.get('settingsItems').settingsGroups);
+            const settingsGroups = Object.entries(Shopware.State('settingsItems').settingsGroups);
             return settingsGroups.reduce((acc, [groupName, groupSettings]) => {
                 acc[groupName] = groupSettings.sort(
                     (a, b) => (this.$tc(a.label).localeCompare(this.$tc(b.label)))

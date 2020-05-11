@@ -176,7 +176,19 @@
       "textDeleteConfirm": "Are you sure you really want to delete the product \"{name}\"? | Are you sure you really want to delete these {count} products?",
       "titleSidebarItemRefresh": "Refresh",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Product \"{name}\" has been saved."
+      "messageSaveSuccess": "Product \"{name}\" has been saved.",
+      "filter": {
+        "manufacturer" : {
+          "label": "Manufacturer"
+        },
+        "activeInactive": {
+          "label": "Only show Active products"
+        },
+        "productNumber": {
+          "label": "Product Number",
+          "placeholder": "Product Number..."
+        }
+      }
     },
     "detail": {
       "textHeadline": "New product",

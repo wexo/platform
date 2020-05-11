@@ -3,6 +3,10 @@ import './sw-product-list.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const activeInactiveOptions = {
+    active: "active",
+    inactive: "inactive"
+}
 
 Component.register('sw-product-list', {
     template,
@@ -24,8 +28,37 @@ Component.register('sw-product-list', {
             naturalSorting: true,
             isLoading: false,
             isBulkLoading: false,
-            total: 0
+            total: 0,
+            filter: {
+                activeInactive: "",
+                selectedManufacturers: [],
+                productNumber: ""
+            },
+            manufacturers: [],
+            activeInactiveOptions: [
+                {
+                    name: "Active",
+                    value: activeInactiveOptions.active
+                },
+                {
+                    name: "Inactive",
+                    value: activeInactiveOptions.inactive
+                }
+            ]
         };
+    },
+
+    watch: {
+        filter: {
+            handler(){
+                this.getList();
+            },
+            deep: true
+        }
+    },
+
+    created() {
+        this.getManufacturerList()
     },
 
     metaInfo() {
@@ -61,6 +94,10 @@ Component.register('sw-product-list', {
                     align: 'right'
                 };
             });
+        },
+
+        manufacturerRepository() {
+            return this.repositoryFactory.create('product_manufacturer');
         }
     },
 
@@ -78,6 +115,14 @@ Component.register('sw-product-list', {
     },
 
     methods: {
+        openFilter() {
+            this.$ref.filter.isActive = true;
+        },
+
+        updateProductNumberFilter(productNumber) {
+            this.filter.productNumber = productNumber;
+        },
+
         getList() {
             this.isLoading = true;
 
@@ -89,6 +134,20 @@ Component.register('sw-product-list', {
             productCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
             productCriteria.addAssociation('cover');
             productCriteria.addAssociation('manufacturer');
+
+            if (this.filter.activeInactive) {
+                const showActiveProducts = this.filter.activeInactive === activeInactiveOptions.active;
+                productCriteria.addFilter(Criteria.equals('product.active', showActiveProducts));
+            }
+
+            if (this.filter.selectedManufacturers.length) {
+                productCriteria.addFilter(Criteria.equalsAny('product.manufacturerId', this.filter.selectedManufacturers));
+            }
+
+            if (this.filter.productNumber) {
+                productCriteria.addFilter(Criteria.contains('product.productNumber', this.filter.productNumber));
+            }
+
 
             const currencyCriteria = new Criteria(1, 500);
 
@@ -211,6 +270,21 @@ Component.register('sw-product-list', {
                 allowResize: true,
                 align: 'right'
             }];
+        },
+
+        getManufacturerList() {
+            this.manufacturerRepository.search(new Criteria, Shopware.Context.api).then(response => {
+                let manufacturers = response;
+
+                manufacturers = manufacturers.map((object) => {
+                    return {
+                        id: object.id,
+                        name: object.name
+                    }
+                })
+
+                this.manufacturers = manufacturers;
+            })
         },
 
         onDuplicate(referenceProduct) {

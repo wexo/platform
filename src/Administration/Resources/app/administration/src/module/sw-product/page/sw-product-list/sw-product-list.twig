@@ -148,6 +148,41 @@
                             @click="onRefresh">
                         </sw-sidebar-item>
                     {% endblock %}
+                    {% block sw_product_list_sidebar_filter %}
+                        <sw-sidebar-item
+                            icon="default-action-filter"
+                            title="Filter"
+                            ref="filter"
+                            @click="openFilter">
+
+                            <sw-container columns="1fr" gap="12px" class="sidebar--filter-container">
+                                <sw-single-select
+                                        v-model="filter.activeInactive"
+                                        :label="$tc('sw-product.list.filter.activeInactive.label')"
+                                        :options="activeInactiveOptions"
+                                        valueProperty="value"
+                                        labelProperty="name"
+                                        :value="filter.activeInactive">
+                                </sw-single-select>
+
+                                <sw-multi-select
+                                        v-model="filter.selectedManufacturers"
+                                        :label="$tc('sw-product.list.filter.manufacturer.label')"
+                                        :options="manufacturers"
+                                        valueProperty="id"
+                                        labelProperty="name"
+                                        :value="filter.selectedManufacturers">
+                                </sw-multi-select>
+
+                                <sw-text-field :placeholder="$tc('sw-product.list.filter.productNumber.placeholder')"
+                                               :label="$tc('sw-product.list.filter.productNumber.label')"
+                                               :value="filter.productNumber"
+                                               @input="updateProductNumberFilter">
+                                </sw-text-field>
+                            </sw-container>
+
+                        </sw-sidebar-item>
+                    {% endblock %}
                 </sw-sidebar>
             </template>
         {% endblock %}
