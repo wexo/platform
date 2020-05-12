@@ -184,9 +184,43 @@
         "activeInactive": {
           "label": "Only show Active products"
         },
+        "clearanceSale": {
+          "label": "Show only on clearance"
+        },
         "productNumber": {
           "label": "Product Number",
           "placeholder": "Product Number..."
+        },
+        "price": {
+          "label": "Price",
+          "from": {
+            "label": "From",
+            "placeholder": "From..."
+          },
+          "to": {
+            "label": "To",
+            "placeholder": "To..."
+          }
+        },
+        "stock": {
+          "label": "Stock",
+          "from": {
+            "label": "From",
+            "placeholder": "From..."
+          },
+          "to": {
+            "label": "To",
+            "placeholder": "To..."
+          }
+        },
+        "missingCover": {
+          "label": "Missing cover image"
+        },
+        "salesChannel": {
+          "label": "Sales Channel"
+        },
+        "showAllProductVariants": {
+          "label": "Show all product variants"
         }
       }
     },

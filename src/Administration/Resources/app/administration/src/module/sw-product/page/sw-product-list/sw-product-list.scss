@@ -12,6 +12,9 @@ $sw-product-list-color-success: $color-emerald;
 
     .sidebar--filter-container {
         padding: 15px;
+        .sw-field--switch {
+            margin: 0;
+        }
     }
 
     .is--inactive {

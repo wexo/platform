@@ -152,8 +152,15 @@
                         <sw-sidebar-item
                             icon="default-action-filter"
                             title="Filter"
-                            ref="filter"
-                            @click="openFilter">
+                            ref="filter">
+
+                            <sw-container columns="1fr " gap="6px" class="sidebar--filter-container">
+                                <sw-switch-field size="small" :label="$tc('sw-product.list.filter.missingCover.label')" v-model="filter.missingCover" disabled></sw-switch-field>
+
+                                <sw-switch-field size="small" :label="$tc('sw-product.list.filter.showAllProductVariants.label')" v-model="filter.showAllProductVariants"></sw-switch-field>
+
+                                <sw-switch-field size="small" :label="$tc('sw-product.list.filter.clearanceSale.label')" v-model="filter.clearanceSale"></sw-switch-field>
+                            </sw-container>
 
                             <sw-container columns="1fr" gap="12px" class="sidebar--filter-container">
                                 <sw-single-select
@@ -179,6 +186,52 @@
                                                :value="filter.productNumber"
                                                @input="updateProductNumberFilter">
                                 </sw-text-field>
+                            </sw-container>
+
+                            <sw-container columns="1fr" gap="12px" class="sidebar--filter-container">
+                                <h3>{{ $tc('sw-product.list.filter.price.label') }}</h3>
+                                <sw-container columns="1fr 1fr" gap="12px">
+                                    <sw-number-field numberType="float"
+                                                     :label="$tc('sw-product.list.filter.price.from.placeholder')"
+                                                     :placeholder="$tc('sw-product.list.filter.price.from.placeholder')"
+                                                     v-model="filter.price.from">
+                                    </sw-number-field>
+
+                                    <sw-number-field numberType="float"
+                                                     :label="$tc('sw-product.list.filter.price.to.placeholder')"
+                                                     :placeholder="$tc('sw-product.list.filter.price.to.placeholder')"
+                                                     v-model="filter.price.to">
+                                    </sw-number-field>
+                                </sw-container>
+                            </sw-container>
+
+                            <sw-container columns="1fr" gap="12px" class="sidebar--filter-container">
+                                <h3>{{ $tc('sw-product.list.filter.stock.label') }}</h3>
+
+                                <sw-container columns="1fr 1fr" gap="12px">
+                                    <sw-number-field numberType="float"
+                                                     :label="$tc('sw-product.list.filter.stock.from.placeholder')"
+                                                     :placeholder="$tc('sw-product.list.filter.stock.from.placeholder')"
+                                                     v-model="filter.stock.from">
+                                    </sw-number-field>
+
+                                    <sw-number-field numberType="float"
+                                                     :label="$tc('sw-product.list.filter.stock.to.placeholder')"
+                                                     :placeholder="$tc('sw-product.list.filter.stock.to.placeholder')"
+                                                     v-model="filter.stock.to">
+                                    </sw-number-field>
+                                </sw-container>
+                            </sw-container>
+
+                            <sw-container columns="1fr" gap="12px" class="sidebar--filter-container">
+                                <sw-single-select
+                                        v-model="filter.salesChannel"
+                                        :label="$tc('sw-product.list.filter.salesChannel.label')"
+                                        :options="salesChannels"
+                                        valueProperty="id"
+                                        labelProperty="name"
+                                        :value="filter.salesChannel">
+                                </sw-single-select>
                             </sw-container>
 
                         </sw-sidebar-item>
