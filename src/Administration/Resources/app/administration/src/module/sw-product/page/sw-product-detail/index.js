@@ -131,7 +131,7 @@ Component.register('sw-product-detail', {
             criteria
                 .addAssociation('cover')
                 .addAssociation('categories')
-                .addAssociation('visibilities.salesChannel')
+                .addAssociation('visibilities.salesChannel.domains')
                 .addAssociation('options')
                 .addAssociation('configuratorSettings.option')
                 .addAssociation('unit')
@@ -175,6 +175,10 @@ Component.register('sw-product-detail', {
             }
 
             return '';
+        },
+
+        showStorefrontBtn() {
+            return this.product.active && this.product.visibilities.length > 0;
         }
     },
 
@@ -466,6 +470,29 @@ Component.register('sw-product-detail', {
 
         onCancel() {
             this.$router.push({ name: 'sw.product.index' });
+        },
+
+        onStorefront() {
+            const visibilities = this.product.visibilities;
+
+            if (visibilities.length === 1 && visibilities.first().salesChannel.domains.length === 1) {
+                let location = `detail/${this.product.id}`;
+                const visibility = visibilities.first();
+
+                const seoUrl = this.product.seoUrls.filter(value => {
+                    return value.salesChannelId === visibility.salesChannelId;
+                });
+
+                console.log(visibility);
+
+                if (seoUrl.length) {
+                    location = seoUrl.first().seoPathInfo;
+                }
+
+                window.open(`${visibility.salesChannel.domains.first().url}/${location}`, '_blank');
+            } else {
+                this.$refs.storefrontModal.openContent();
+            }
         },
 
         saveProduct() {

@@ -1,0 +1,27 @@
+{% block sw_media_url_form %}
+    <sw-modal v-if="active" class="sw-media-url-form"
+              variant="small"
+              :title="modalTitle"
+              @modal-close="onCloseModal"
+              v-on="$listeners">
+
+        {% block sw_media_url_form_input %}
+            <sw-entity-single-select
+                label="Sales Channel"
+                entity="sales_channel"
+                :criteria="salesChannelCriteria"
+                v-model="salesChannelId">
+            </sw-entity-single-select>
+        {% endblock %}
+            <sw-entity-single-select
+                :disabled="!salesChannelId"
+                label="Domain"
+                labelProperty="url"
+                valueProperty="id"
+                entity="sales_channel_domain"
+                :criteria="domainCriteria"
+                v-model="domainId"
+                @option-select="navigateDomain">
+            </sw-entity-single-select>
+    </sw-modal>
+{% endblock %}

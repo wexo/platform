@@ -9,6 +9,11 @@
 
         {% block sw_product_detail_actions %}
             <template slot="smart-bar-actions">
+                {% block sw_product_detail_actions_storefront %}
+                    <sw-button v-if="showStorefrontBtn" :disabled="isLoading" @click="onStorefront">
+                        View in storefront
+                    </sw-button>
+                {% endblock %}
                 {% block sw_product_detail_actions_abort %}
                     <sw-button :disabled="isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
                         {{ $tc('sw-product.detail.buttonCancel') }}
@@ -58,6 +63,14 @@
                     </sw-context-button>
                     {% endblock %}
                 </sw-button-group>
+
+                {% block sw_product_detail_storefront_modal %}
+                    <sw-product-storefront-modal
+                        v-if="showStorefrontBtn"
+                        ref="storefrontModal">
+
+                    </sw-product-storefront-modal>
+                {% endblock %}
             </template>
         {% endblock %}
 
