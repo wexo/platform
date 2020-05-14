@@ -179,8 +179,18 @@ class ApiController extends AbstractController
             $definition = $this->definitionRegistry->getByEntityName($result['entity']);
             /** @var EntityCollection $entityCollection */
             $entityCollection = $result['entities'];
+
             $entities = [];
             foreach ($entityCollection->getElements() as $key => $entity) {
+                if ($result['entity'] == 'customer' && empty($entity->getDefaultBillingAddress())) {
+                    $criteria = new Criteria();
+                    $criteria->addFilter(new EqualsFilter('id', $entity->getDefaultBillingAddressId()));
+                    $getCustomerAddress = $this->definitionRegistry->getRepository('customer_address')->search($criteria, $context)->getElements();
+                    $defaultBillingAddress = reset($getCustomerAddress);
+                    if ($defaultBillingAddress) {
+                        $entity->setDefaultBillingAddress($defaultBillingAddress);
+                    }
+                }
                 $entities[$key] = $this->apiVersionConverter->convertEntity($definition, $entity, $version);
             }
             $result['entities'] = $entities;

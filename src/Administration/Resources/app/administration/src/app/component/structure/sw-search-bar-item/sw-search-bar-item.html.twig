@@ -12,7 +12,7 @@
                     <span class="sw-search-bar-item__label">
                         <sw-highlight-text
                                 :searchTerm="searchTerm"
-                                :text="`${item.customerNumber} - ${item.firstName} ${item.lastName}`">
+                                :text="`${item.customerNumber} - ${item.firstName} ${item.lastName} <p>${item.defaultBillingAddress.street}, ${item.defaultBillingAddress.zipcode} ${item.defaultBillingAddress.city}</p>`">
                         </sw-highlight-text>
                     </span>
                 {% endblock %}
