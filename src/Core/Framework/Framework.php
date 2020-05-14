@@ -59,7 +59,6 @@ class Framework extends Bundle
         $loader->load('rule.xml');
         $loader->load('scheduled-task.xml');
         $loader->load('store.xml');
-        $loader->load('language.xml');
         $loader->load('update.xml');
         $loader->load('seo.xml');
 

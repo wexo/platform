@@ -41,5 +41,31 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="Shopware\Core\System\Language\SalesChannel\SalesChannelLanguageDefinition"/>
         </service>
+
+        <service
+            class="Shopware\Core\System\Language\SwitchDefault\LanguageSwitcher"
+            id="Shopware\Core\System\Language\SwitchDefault\LanguageSwitcherInterface"
+        >
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+        </service>
+
+        <service id="Shopware\Core\System\Language\SwitchDefault\EntityDetailSwitchLanguageHandler">
+            <argument type="service" id="Shopware\Core\System\Language\SwitchDefault\LanguageSwitcherInterface"/>
+
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\System\Language\SwitchDefault\EntitySwitchLanguageHandler">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\System\Language\SwitchDefault\LanguageDefaultSwitchInvoker">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+        </service>
     </services>
 </container>
