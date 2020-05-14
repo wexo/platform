@@ -154,10 +154,25 @@ Component.register('sw-customer-detail', {
                 this.customer.birthday = null;
             }
 
+            if (! this.checkPassword()) {
+                this.isLoading = false;
+                this.createNotificationError({
+                    title: this.$tc('sw-customer.detail.titleSaveError'),
+                    message: this.$tc('sw-customer.detail.notificationPasswordErrorMessage')
+                });
+                return false;
+            }
+
             return this.customerRepository.save(this.customer, Shopware.Context.api).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
                 this.createdComponent();
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-customer.detail.titleSaveSuccess'),
+                    message: this.$tc('sw-customer.detail.messageSaveSuccess',  0, {
+                        name: this.customer.firstName + ' ' + this.customer.lastName
+                    })
+                });
             }).catch((exception) => {
                 this.createNotificationError({
                     title: this.$tc('sw-customer.detail.titleSaveError'),
@@ -175,6 +190,20 @@ Component.register('sw-customer-detail', {
 
         onActivateCustomerEditMode() {
             this.editMode = true;
-        }
+        },
+
+        checkPassword() {
+            if ((this.customer.passwordNew && this.customer.passwordNew.length > 0) ||
+                (this.customer.passwordConfirm && this.customer.passwordConfirm.length > 0)
+                ) {
+                if (this.customer.passwordNew !== this.customer.passwordConfirm) {
+                    return false;
+                } else {
+                    this.customer.password = this.customer.passwordNew;
+                }
+            }
+
+            return true;
+        },
     }
 });
