@@ -19,20 +19,31 @@ class LanguageDefaultSwitchInvoker
      */
     private $messageBus;
 
-    public function __construct(DefinitionInstanceRegistry $definitions, MessageBusInterface $messageBus)
-    {
+    /**
+     * @var LanguageSwitcherInterface
+     */
+    private $languageSwitcher;
+
+    public function __construct(
+        DefinitionInstanceRegistry $definitions,
+        MessageBusInterface $messageBus,
+        LanguageSwitcherInterface $languageSwitcher
+    ) {
         $this->definitions = $definitions;
         $this->messageBus = $messageBus;
+        $this->languageSwitcher = $languageSwitcher;
     }
 
     public function invokeLanguageSwitch(string $languageId): void
     {
+        $this->languageSwitcher->switchLanguage($languageId);
+
         foreach ($this->definitions->getDefinitions() as $definition) {
             $translation = $definition->getTranslationDefinition();
 
             if ($translation instanceof EntityTranslationDefinition) {
                 $this->messageBus->dispatch(new EntitySwitchLanguageMessage(
-                    $translation->getEntityName(),
+                    $definition->getEntityName(),
                     Defaults::LANGUAGE_SYSTEM,
                     $languageId
                 ));

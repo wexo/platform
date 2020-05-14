@@ -22,7 +22,7 @@ class EntityDetailSwitchLanguageHandler extends AbstractMessageHandler
             return;
         }
 
-        $this->languageSwitcher->switch(
+        $this->languageSwitcher->switchTranslatableEntity(
             $message->getEntityName(),
             $message->getIds(),
             $message->getCurrentLanguage(),

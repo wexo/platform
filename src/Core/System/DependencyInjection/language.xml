@@ -47,6 +47,7 @@
             id="Shopware\Core\System\Language\SwitchDefault\LanguageSwitcherInterface"
         >
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\System\Language\SwitchDefault\EntityDetailSwitchLanguageHandler">
@@ -66,6 +67,7 @@
         <service id="Shopware\Core\System\Language\SwitchDefault\LanguageDefaultSwitchInvoker">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Shopware\Core\System\Language\SwitchDefault\LanguageSwitcherInterface"/>
         </service>
 
         <service id="Shopware\Core\System\Language\Api\LanguageDefaultSwitcherActionController" public="true">

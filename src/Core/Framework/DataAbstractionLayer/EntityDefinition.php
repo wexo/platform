@@ -231,6 +231,11 @@ abstract class EntityDefinition
         return $this->parentDefinition = $this->registry->get($parentDefinitionClass);
     }
 
+    final public function getTranslationField(): ?TranslationsAssociationField
+    {
+        return $this->translationField;
+    }
+
     final public function getTranslationDefinition(): ?EntityDefinition
     {
         // value is initialized from this method
