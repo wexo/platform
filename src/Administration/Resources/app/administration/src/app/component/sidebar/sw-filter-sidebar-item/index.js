@@ -11,7 +11,7 @@ const filterInputTypeOptions = {
     number: 'number',
     singleSelect: 'singleSelect',
     multiSelect: 'multiSelect'
-}
+};
 
 Component.register('sw-filter-sidebar-item', {
     template,
@@ -49,7 +49,7 @@ Component.register('sw-filter-sidebar-item', {
                             value: false
                         }
                     ]
-                },
+                }
             ],
             schema: [{
                 name: 'camelCase, unique',
@@ -76,7 +76,7 @@ Component.register('sw-filter-sidebar-item', {
     watch: {
         filter: {
             handler() {
-                this.$emit('update-criteria-array', this.getCriteriaArray())
+                this.$emit('update-criteria-array', this.getCriteriaArray());
             },
             deep: true
         }
@@ -95,7 +95,7 @@ Component.register('sw-filter-sidebar-item', {
 
         setRepositoriesAndNestedVariables() {
             const neededRepositories = [];
-            for (const filterOption of this.filterOptions) {
+            this.filterOptions.forEach((filterOption) => {
                 if (filterOption.repository) {
                     neededRepositories.push(filterOption.repository);
                 }
@@ -103,37 +103,37 @@ Component.register('sw-filter-sidebar-item', {
                 if (filterOption.inputType === 'range') {
                     this.filter[filterOption.name] = {};
                 }
-            }
+            });
 
-            for (const neededRepository of neededRepositories) {
+            neededRepositories.forEach((neededRepository) => {
                 this.repository[neededRepository] = this.repositoryFactory.create(neededRepository);
-            }
+            });
         },
 
         setOptionsOnFilters() {
             this.loading = true;
-            const promises = []
-            for (let filterOption of this.filterOptions) {
+            const promises = [];
+            this.filterOptions.forEach((filterOption) => {
                 if (filterOption.repository) {
                     promises.push(this.repository[filterOption.repository].search(
-                        new Criteria,
+                        new Criteria(),
                         Shopware.Context.api
                     ).then((response) => {
-
                         response = response.map((object) => {
                             return {
                                 name: object.name || object.title,
                                 value: object.id
-                            }
-                        })
+                            };
+                        });
 
                         filterOption.options = response;
                     }));
                 }
-            }
+            })
             return Promise.all(promises).then(() => {
                 this.loading = false;
-            })
+                this.$forceUpdate();
+            });
         },
 
         updateProductNumberFilter(productNumber) {
@@ -143,10 +143,10 @@ Component.register('sw-filter-sidebar-item', {
         getCriteriaArray() {
             const criteriaArray = [];
 
-            for (const filterOption of this.filterOptions) {
+            this.filterOptions.forEach((filterOption) => {
                 if (!filterInputTypeOptions[filterOption.inputType]) {
                     console.error(`Unknown type ${filterOption.inputType} for ${JSON.parse(filterOption)}`);
-                    continue;
+                    return;
                 }
 
                 const { field } = filterOption;
@@ -155,17 +155,17 @@ Component.register('sw-filter-sidebar-item', {
                 if (filterOption.criteriaType === 'range') {
                     value = {};
                     if (this.filter[filterOption.name].from) {
-                        value.gte = this.filter[filterOption.name].from
+                        value.gte = this.filter[filterOption.name].from;
                     }
                     if (this.filter[filterOption.name].to) {
-                        value.lte = this.filter[filterOption.name].to
+                        value.lte = this.filter[filterOption.name].to;
                     }
-                    if (!value.gte && !value.lte) continue;
+                    if (!value.gte && !value.lte) return;
                 } else {
                     value = this.filter[filterOption.name];
                 }
 
-                if ((typeof value === 'undefined') || value === null || value.length === 0) continue;
+                if ((typeof value === 'undefined') || value === null || value.length === 0) return;
 
                 try {
                     criteriaArray.push(Criteria[filterOption.criteriaType](field, value));
@@ -173,40 +173,43 @@ Component.register('sw-filter-sidebar-item', {
                     console.error(`Unknown criteriaType ${filterOption.criteriaType} for ${filterOption}`);
                     console.error(e);
                 }
-
-            }
+            });
 
             return criteriaArray;
         },
 
         getManufacturerList() {
-            this.manufacturerRepository.search(new Criteria, Shopware.Context.api).then(response => {
+            const criteria = new Criteria();
+            criteria.setLimit(500);
+            this.manufacturerRepository.search(criteria, Shopware.Context.api).then(response => {
                 let manufacturers = response;
 
                 manufacturers = manufacturers.map((manufacturer) => {
                     return {
                         id: manufacturer.id,
                         name: manufacturer.name
-                    }
-                })
+                    };
+                });
 
                 this.manufacturers = manufacturers;
-            })
+            });
         },
 
         getSalesChannelList() {
-            this.salesChannelRepository.search(new Criteria, Shopware.Context.api).then(response => {
+            const criteria = new Criteria();
+            criteria.setLimit(500);
+            this.salesChannelRepository.search(criteria, Shopware.Context.api).then(response => {
                 let salesChannels = response;
 
                 salesChannels = salesChannels.map((salesChannel) => {
                     return {
                         id: salesChannel.id,
                         name: salesChannel.name
-                    }
-                })
+                    };
+                });
 
                 this.salesChannels = salesChannels;
-            })
+            });
         }
     }
 });

@@ -164,9 +164,9 @@ Component.register('sw-product-list', {
             productCriteria.addAssociation('manufacturer');
             productCriteria.addAssociation('visibilities');
 
-            for (const filter of this.criteriaArray) {
+            this.criteriaArray.forEach((filter) => {
                 productCriteria = productCriteria.addFilter(filter);
-            }
+            });
 
             const currencyCriteria = new Criteria(1, 500);
 
