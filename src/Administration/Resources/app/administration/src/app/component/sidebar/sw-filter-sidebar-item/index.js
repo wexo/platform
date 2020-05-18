@@ -129,7 +129,7 @@ Component.register('sw-filter-sidebar-item', {
                         filterOption.options = response;
                     }));
                 }
-            })
+            });
             return Promise.all(promises).then(() => {
                 this.loading = false;
                 this.$forceUpdate();
