@@ -56,18 +56,26 @@
             <tag name="messenger.message_handler"/>
         </service>
 
-        <service id="Shopware\Core\System\Language\SwitchDefault\EntitySwitchLanguageHandler">
+        <service id="Shopware\Core\System\Language\SwitchDefault\EntityDetailSwitchLanguageMessageGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+        </service>
+
+        <service id="Shopware\Core\System\Language\SwitchDefault\EntitySwitchLanguageHandler">
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Shopware\Core\System\Language\SwitchDefault\EntityDetailSwitchLanguageMessageGenerator"/>
 
             <tag name="messenger.message_handler"/>
         </service>
 
-        <service id="Shopware\Core\System\Language\SwitchDefault\LanguageDefaultSwitchInvoker">
+        <service id="Shopware\Core\System\Language\SwitchDefault\EntitySwitchLanguageMessageGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+        </service>
+
+        <service id="Shopware\Core\System\Language\SwitchDefault\LanguageDefaultSwitchInvoker">
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Core\System\Language\SwitchDefault\LanguageSwitcherInterface"/>
+            <argument type="service" id="Shopware\Core\System\Language\SwitchDefault\EntitySwitchLanguageMessageGenerator"/>
         </service>
 
         <service id="Shopware\Core\System\Language\Api\LanguageDefaultSwitcherActionController" public="true">
@@ -75,6 +83,16 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Core\System\Language\Command\SwitchDefaultCommand">
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="Shopware\Core\System\Language\SwitchDefault\LanguageDefaultSwitchInvoker"/>
+            <argument type="service" id="Shopware\Core\System\Language\SwitchDefault\LanguageSwitcherInterface"/>
+            <argument type="service" id="Shopware\Core\System\Language\SwitchDefault\EntitySwitchLanguageMessageGenerator"/>
+            <argument type="service" id="Shopware\Core\System\Language\SwitchDefault\EntityDetailSwitchLanguageMessageGenerator"/>
+
+            <tag name="console.command"/>
         </service>
     </services>
 </container>

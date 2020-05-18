@@ -3,9 +3,11 @@
 namespace Shopware\Core\System\Language\SwitchDefault;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -64,9 +66,13 @@ class LanguageSwitcher implements LanguageSwitcherInterface
             }
 
             if ($entity instanceof ArrayEntity) {
-                $oldData = $entity[$translationField->getPropertyName()][$oldLanguageId] ?? [];
-                $newData = $entity[$translationField->getPropertyName()][$newLanguageId] ?? [];
                 $primaryKeyValue = $entity[$primaryKey->getPropertyName()];
+                /** @var EntityCollection $translation */
+                $translation = $entity[$translationField->getPropertyName()];
+                $oldLangKey = $primaryKeyValue . '-' . $oldLanguageId;
+                $newLangKey = $primaryKeyValue . '-' . $newLanguageId;
+                $oldData = $translation->has($oldLangKey) ? $translation->get($oldLangKey)->jsonSerialize() : [];
+                $newData = $translation->has($newLangKey) ? $translation->get($newLangKey)->jsonSerialize() : [];
             }
 
             if (empty($oldData) && empty($newData)) {
@@ -86,26 +92,32 @@ class LanguageSwitcher implements LanguageSwitcherInterface
             ];
         }
 
-        if (empty($updates)) {
+        if (!empty($updates)) {
             $repository->update($updates, $context);
         }
     }
 
-    public function switchLanguage(string $newLanguageId): void
+    public function switchLanguage(string $oldLanguageId, string $newLanguageId): void
     {
         $this->connection->exec('SET FOREIGN_KEY_CHECKS = 0');
         $stmt = $this->connection->prepare('UPDATE language SET id = :newId WHERE id = :oldId');
 
-        // assign new uuid to old DEFAULT
+        // assign new placeholder to old DEFAULT
+        $swap = Uuid::randomHex();
         $stmt->execute([
-            'newId' => Uuid::randomBytes(),
-            'oldId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+            'newId' => Uuid::fromHexToBytes($swap),
+            'oldId' => Uuid::fromHexToBytes($oldLanguageId),
+        ]);
+
+        $stmt->execute([
+            'newId' => Uuid::fromHexToBytes($oldLanguageId),
+            'oldId' => Uuid::fromHexToBytes($newLanguageId),
         ]);
 
         // change id to DEFAULT
         $stmt->execute([
-            'newId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
-            'oldId' => $newLanguageId,
+            'newId' => Uuid::fromHexToBytes($newLanguageId),
+            'oldId' => Uuid::fromHexToBytes($swap),
         ]);
 
         $this->connection->exec('SET FOREIGN_KEY_CHECKS = 1');

@@ -6,5 +6,5 @@ interface LanguageSwitcherInterface
 {
     public function switchTranslatableEntity(string $entityName, array $ids, string $oldLanguageId, string $newLanguageId): void;
 
-    public function switchLanguage(string $newLanguageId): void;
+    public function switchLanguage(string $oldLanguageId, string $newLanguageId): void;
 }

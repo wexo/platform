@@ -2,36 +2,27 @@
 
 namespace Shopware\Core\System\Language\SwitchDefault;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class EntitySwitchLanguageHandler extends AbstractMessageHandler
 {
     /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitions;
-
-    /**
      * @var MessageBusInterface
      */
     private $messageBus;
 
     /**
-     * @var IteratorFactory
+     * @var EntityDetailSwitchLanguageMessageGenerator
      */
-    private $iteratorFactory;
+    private $messageGenerator;
 
     public function __construct(
-        DefinitionInstanceRegistry $definitions,
         MessageBusInterface $messageBus,
-        IteratorFactory $iteratorFactory
+        EntityDetailSwitchLanguageMessageGenerator $messageGenerator
     ) {
-        $this->definitions = $definitions;
         $this->messageBus = $messageBus;
-        $this->iteratorFactory = $iteratorFactory;
+        $this->messageGenerator = $messageGenerator;
     }
 
     public function handle($message): void
@@ -40,16 +31,14 @@ class EntitySwitchLanguageHandler extends AbstractMessageHandler
             return;
         }
 
-        $definition = $this->definitions->getByEntityName($message->getEntityName());
-        $iterator = $this->iteratorFactory->createIterator($definition);
+        $generator = $this->messageGenerator->generate(
+            $message->getEntityName(),
+            $message->getCurrentLanguage(),
+            $message->getNewLanguage()
+        );
 
-        foreach ($iterator->fetch() as $ids) {
-            $this->messageBus->dispatch(new EntityDetailSwitchLanguageMessage(
-                $message->getEntityName(),
-                $ids,
-                $message->getCurrentLanguage(),
-                $message->getNewLanguage()
-            ));
+        foreach ($generator as $subMessage) {
+            $this->messageBus->dispatch($subMessage);
         }
     }
 

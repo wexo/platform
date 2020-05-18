@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Language\Api;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\Language\SwitchDefault\LanguageDefaultSwitchInvoker;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,7 +30,7 @@ class LanguageDefaultSwitcherActionController extends AbstractController
      */
     public function switchDefaultLanguage(string $languageId): JsonResponse
     {
-        $this->invoker->invokeLanguageSwitch($languageId);
+        $this->invoker->invokeLanguageSwitch(Defaults::LANGUAGE_SYSTEM, $languageId);
 
         return new JsonResponse([
             'success' => true,

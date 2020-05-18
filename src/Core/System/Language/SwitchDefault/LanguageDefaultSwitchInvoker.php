@@ -2,18 +2,10 @@
 
 namespace Shopware\Core\System\Language\SwitchDefault;
 
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class LanguageDefaultSwitchInvoker
 {
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitions;
-
     /**
      * @var MessageBusInterface
      */
@@ -24,30 +16,27 @@ class LanguageDefaultSwitchInvoker
      */
     private $languageSwitcher;
 
+    /**
+     * @var EntitySwitchLanguageMessageGenerator
+     */
+    private $entitySwitchGenerator;
+
     public function __construct(
-        DefinitionInstanceRegistry $definitions,
         MessageBusInterface $messageBus,
-        LanguageSwitcherInterface $languageSwitcher
+        LanguageSwitcherInterface $languageSwitcher,
+        EntitySwitchLanguageMessageGenerator $entitySwitchGenerator
     ) {
-        $this->definitions = $definitions;
         $this->messageBus = $messageBus;
         $this->languageSwitcher = $languageSwitcher;
+        $this->entitySwitchGenerator = $entitySwitchGenerator;
     }
 
-    public function invokeLanguageSwitch(string $languageId): void
+    public function invokeLanguageSwitch(string $oldLanguageId, string $newLanguageId): void
     {
-        $this->languageSwitcher->switchLanguage($languageId);
+        $this->languageSwitcher->switchLanguage($oldLanguageId, $newLanguageId);
 
-        foreach ($this->definitions->getDefinitions() as $definition) {
-            $translation = $definition->getTranslationDefinition();
-
-            if ($translation instanceof EntityTranslationDefinition) {
-                $this->messageBus->dispatch(new EntitySwitchLanguageMessage(
-                    $definition->getEntityName(),
-                    Defaults::LANGUAGE_SYSTEM,
-                    $languageId
-                ));
-            }
+        foreach ($this->entitySwitchGenerator->generate($oldLanguageId, $newLanguageId) as $message) {
+            $this->messageBus->dispatch($message);
         }
     }
 }
