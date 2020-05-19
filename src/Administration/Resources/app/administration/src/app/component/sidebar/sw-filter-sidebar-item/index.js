@@ -74,7 +74,7 @@ Component.register('sw-filter-sidebar-item', {
     },
 
     watch: {
-        filter: {
+        'filter': {
             handler() {
                 this.$emit('update-criteria-array', this.getCriteriaArray());
             },
@@ -90,7 +90,7 @@ Component.register('sw-filter-sidebar-item', {
 
     methods: {
         inputTrigger(event, filterOptionName) {
-            this.filter[filterOptionName] = event;
+            this.$set(this.filter, filterOptionName, event);
         },
 
         setRepositoriesAndNestedVariables() {
@@ -101,13 +101,20 @@ Component.register('sw-filter-sidebar-item', {
                 }
 
                 if (filterOption.inputType === 'range') {
-                    this.filter[filterOption.name] = {};
+                    this.$set(this.filter, filterOption.name, { from: null, to: null })
                 }
             });
 
             neededRepositories.forEach((neededRepository) => {
                 this.repository[neededRepository] = this.repositoryFactory.create(neededRepository);
             });
+        },
+
+        rangeInputTrigger(event, filterOptionName, criteria) {
+            let value = this.filter[filterOptionName];
+            value[criteria] = event;
+
+            this.$set(this.filter, filterOptionName, value);
         },
 
         setOptionsOnFilters() {
@@ -136,10 +143,6 @@ Component.register('sw-filter-sidebar-item', {
             });
         },
 
-        updateProductNumberFilter(productNumber) {
-            this.filter.productNumber = productNumber;
-        },
-
         getCriteriaArray() {
             const criteriaArray = [];
 
@@ -152,15 +155,15 @@ Component.register('sw-filter-sidebar-item', {
                 const { field } = filterOption;
 
                 let value;
-                if (filterOption.criteriaType === 'range') {
+                if (filterOption.criteriaType === filterInputTypeOptions.range) {
                     value = {};
-                    if (this.filter[filterOption.name].from) {
+                    if (this.filter[filterOption.name].from || this.filter[filterOption.name].from === 0) {
                         value.gte = this.filter[filterOption.name].from;
                     }
-                    if (this.filter[filterOption.name].to) {
+                    if (this.filter[filterOption.name].to || this.filter[filterOption.name].to === 0) {
                         value.lte = this.filter[filterOption.name].to;
                     }
-                    if (!value.gte && !value.lte) return;
+                    if (!value.gte && value.gte !== 0 && !value.lte && value.lte !== 0) return;
                 } else {
                     value = this.filter[filterOption.name];
                 }

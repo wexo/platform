@@ -27,7 +27,8 @@
                 numberType="float"
                 :label="filterOption.label"
                 :placeholder="filterOption.placeholder"
-                v-model="filter[filterOption.name]">
+                :value="filter[filterOption.name]"
+                @change="inputTrigger($event, filterOption.name)">
         </sw-number-field>
 
         <sw-single-select
@@ -59,13 +60,15 @@
                 <sw-number-field numberType="float"
                                  :label="$tc('sw-product.list.filter.range.from.placeholder')"
                                  :placeholder="$tc('sw-product.list.filter.range.from.placeholder')"
-                                 v-model="filter[filterOption.name].from">
+                                 :value="filter[filterOption.name].from"
+                                 @change="rangeInputTrigger($event, filterOption.name, 'from')">
                 </sw-number-field>
 
                 <sw-number-field numberType="float"
                                  :label="$tc('sw-product.list.filter.range.to.placeholder')"
                                  :placeholder="$tc('sw-product.list.filter.range.to.placeholder')"
-                                 v-model="filter[filterOption.name].to">
+                                 :value="filter[filterOption.name].to"
+                                 @change="rangeInputTrigger($event, filterOption.name, 'to')">
                 </sw-number-field>
             </sw-container>
         </span>
