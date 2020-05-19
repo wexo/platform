@@ -74,7 +74,7 @@ Component.register('sw-filter-sidebar-item', {
     },
 
     watch: {
-        'filter': {
+        filter: {
             handler() {
                 this.$emit('update-criteria-array', this.getCriteriaArray());
             },
@@ -101,7 +101,7 @@ Component.register('sw-filter-sidebar-item', {
                 }
 
                 if (filterOption.inputType === 'range') {
-                    this.$set(this.filter, filterOption.name, { from: null, to: null })
+                    this.$set(this.filter, filterOption.name, { from: null, to: null });
                 }
             });
 
@@ -111,7 +111,7 @@ Component.register('sw-filter-sidebar-item', {
         },
 
         rangeInputTrigger(event, filterOptionName, criteria) {
-            let value = this.filter[filterOptionName];
+            const value = this.filter[filterOptionName];
             value[criteria] = event;
 
             this.$set(this.filter, filterOptionName, value);
