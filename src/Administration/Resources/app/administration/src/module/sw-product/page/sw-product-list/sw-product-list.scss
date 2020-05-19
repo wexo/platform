@@ -10,13 +10,6 @@ $sw-product-list-color-success: $color-emerald;
         position: absolute;
     }
 
-    .sidebar--filter-container {
-        padding: 15px;
-        .sw-field--switch {
-            margin: 0;
-        }
-    }
-
     .is--inactive {
         color: $sw-product-list-color-error;
     }

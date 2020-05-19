@@ -180,10 +180,12 @@
       "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert.",
       "filter": {
         "manufacturer" : {
-          "label": "Manufacturer"
+          "label": "Manufacturer",
+          "placeholder": "Manufacturer"
         },
         "activeInactive": {
-          "label": "Only show Active products"
+          "label": "Only show Active / Inactive products",
+          "placeholder": "Active / Inactive"
         },
         "clearanceSale": {
           "label": "Show only on clearance"
@@ -193,7 +195,9 @@
           "placeholder": "Product Number..."
         },
         "price": {
-          "label": "Price",
+          "label": "Price"
+        },
+        "range" : {
           "from": {
             "label": "From",
             "placeholder": "From..."
@@ -204,24 +208,14 @@
           }
         },
         "stock": {
-          "label": "Stock",
-          "from": {
-            "label": "From",
-            "placeholder": "From..."
-          },
-          "to": {
-            "label": "To",
-            "placeholder": "To..."
-          }
+          "label": "Stock"
         },
         "missingCover": {
           "label": "Missing cover image"
         },
         "salesChannel": {
-          "label": "Sales Channel"
-        },
-        "showAllProductVariants": {
-          "label": "Show all product variants"
+          "label": "Sales Channel",
+          "placeholder": "Sales Channel"
         }
       }
     },

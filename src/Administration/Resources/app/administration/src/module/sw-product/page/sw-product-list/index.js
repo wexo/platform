@@ -3,10 +3,6 @@ import './sw-product-list.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const activeInactiveOptions = {
-    active: "active",
-    inactive: "inactive"
-}
 
 Component.register('sw-product-list', {
     template,
@@ -29,50 +25,75 @@ Component.register('sw-product-list', {
             isLoading: false,
             isBulkLoading: false,
             total: 0,
-            filter: {
-                activeInactive: "",
-                selectedManufacturers: [],
-                productNumber: "",
-                price: {
-                    from: null,
-                    to: null
-                },
-                stock: {
-                    from: null,
-                    to: null
-                },
-                missingCover: false,
-                salesChannel: "",
-                showAllProductVariants: false,
-                clearanceSale: false,
-            },
-            manufacturers: [],
-            salesChannels: [],
-            activeInactiveOptions: [
+            criteriaArray: [],
+            filterOptions: [
                 {
-                    name: "Active",
-                    value: activeInactiveOptions.active
+                    name: 'onClearance',
+                    label: this.$tc('sw-product.list.filter.clearanceSale.label'),
+                    field: 'product.isCloseout',
+                    inputType: 'switch',
+                    criteriaType: 'equals'
                 },
                 {
-                    name: "Inactive",
-                    value: activeInactiveOptions.inactive
+                    name: 'activeInactive',
+                    label: this.$tc('sw-product.list.filter.activeInactive.label'),
+                    placeholder: this.$tc('sw-product.list.filter.activeInactive.placeholder'),
+                    field: 'product.active',
+                    inputType: 'singleSelect',
+                    criteriaType: 'equals',
+                    options: [
+                        {
+                            name: 'Active',
+                            value: true
+                        },
+                        {
+                            name: 'Inactive',
+                            value: false
+                        }
+                    ]
+                },
+                {
+                    name: 'manufacturer',
+                    label: this.$tc('sw-product.list.filter.manufacturer.label'),
+                    placeholder: this.$tc('sw-product.list.filter.manufacturer.placeholder'),
+                    field: 'product.manufacturerId',
+                    inputType: 'multiSelect',
+                    criteriaType: 'equalsAny',
+                    repository: 'product_manufacturer'
+                },
+                {
+                    name: 'salesChannel',
+                    label: this.$tc('sw-product.list.filter.salesChannel.label'),
+                    placeholder: this.$tc('sw-product.list.filter.salesChannel.placeholder'),
+                    field: 'product.visibilities.salesChannelId',
+                    inputType: 'multiSelect',
+                    criteriaType: 'equalsAny',
+                    repository: 'sales_channel'
+                },
+                {
+                    name: 'productNumber',
+                    label: this.$tc('sw-product.list.filter.productNumber.label'),
+                    placeholder: this.$tc('sw-product.list.filter.productNumber.placeholder'),
+                    field: 'product.productNumber',
+                    inputType: 'input',
+                    criteriaType: 'contains'
+                },
+                {
+                    name: 'price',
+                    label: this.$tc('sw-product.list.filter.price.label'),
+                    field: 'product.price',
+                    inputType: 'range',
+                    criteriaType: 'range'
+                },
+                {
+                    name: 'stock',
+                    label: this.$tc('sw-product.list.filter.stock.label'),
+                    field: 'product.stock',
+                    inputType: 'range',
+                    criteriaType: 'range'
                 }
             ]
         };
-    },
-
-    watch: {
-        filter: {
-            handler(){
-                this.getList();
-            },
-            deep: true
-        }
-    },
-
-    created() {
-        this.getManufacturerList();
-        this.getSalesChannelList();
     },
 
     metaInfo() {
@@ -108,14 +129,6 @@ Component.register('sw-product-list', {
                     align: 'right'
                 };
             });
-        },
-
-        manufacturerRepository() {
-            return this.repositoryFactory.create('product_manufacturer');
-        },
-
-        salesChannelRepository() {
-            return this.repositoryFactory.create('sales_channel');
         }
     },
 
@@ -133,8 +146,9 @@ Component.register('sw-product-list', {
     },
 
     methods: {
-        updateProductNumberFilter(productNumber) {
-            this.filter.productNumber = productNumber;
+        updateCriteria(criteriaArray) {
+            this.criteriaArray = criteriaArray;
+            this.getList();
         },
 
         getList() {
@@ -144,15 +158,15 @@ Component.register('sw-product-list', {
             this.naturalSorting = this.sortBy === 'productNumber';
 
             productCriteria.setTerm(this.term);
-            if (!this.filter.showAllProductVariants) {
-                productCriteria.addFilter(Criteria.equals('product.parentId', null));
-            }
+            productCriteria.addFilter(Criteria.equals('product.parentId', null));
             productCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
             productCriteria.addAssociation('cover');
             productCriteria.addAssociation('manufacturer');
             productCriteria.addAssociation('visibilities');
 
-            productCriteria = this.addFilters(productCriteria);
+            this.criteriaArray.forEach((filter) => {
+                productCriteria = productCriteria.addFilter(filter);
+            });
 
             const currencyCriteria = new Criteria(1, 500);
 
@@ -163,95 +177,15 @@ Component.register('sw-product-list', {
                 const products = result[0];
                 const currencies = result[1];
 
-                if (this.filter.showAllProductVariants) {
-                    const parentRequestPromises = [];
-                    for (let product of products) {
-                        if (product.parentId) {
-                            const criteria = new Criteria();
-                            criteria.addFilter(Criteria.equals('id', product.parentId))
-                            criteria.addAssociation('manufacturer');
-                            parentRequestPromises.push(this.productRepository.search(criteria, Shopware.Context.api).then((response) => {
-                                const parentProduct = response.get(product.parentId);
+                this.total = products.total;
+                this.products = products;
 
-                                if (!product.name) {
-                                    product.name = parentProduct.name;
-                                }
-                                if (!product.price) {
-                                    product.price = parentProduct.price;
-                                }
-                                if (!product.manufacturer) {
-                                    product.manufacturer = parentProduct.manufacturer;
-                                }
-                            }))
-                        }
-                        Promise.all(parentRequestPromises).then(() => {
-                            this.total = products.total;
-                            this.products = products;
-
-                            this.currencies = currencies;
-                            this.isLoading = false;
-                            this.selection = {};
-                        })
-                    }
-                } else {
-                    this.total = products.total;
-                    this.products = products;
-
-                    this.currencies = currencies;
-                    this.isLoading = false;
-                    this.selection = {};
-                }
+                this.currencies = currencies;
+                this.isLoading = false;
+                this.selection = {};
             }).catch(() => {
                 this.isLoading = false;
             });
-        },
-
-        addFilters(productCriteria) {
-            if (this.filter.activeInactive) {
-                const showActiveProducts = this.filter.activeInactive === activeInactiveOptions.active;
-                productCriteria.addFilter(Criteria.equals('product.active', showActiveProducts));
-            }
-
-            if (this.filter.clearanceSale) {
-                productCriteria.addFilter(Criteria.equals('product.isCloseout', true))
-            }
-
-            if (this.filter.selectedManufacturers.length) {
-                productCriteria.addFilter(Criteria.equalsAny(
-                    'product.manufacturerId',
-                    this.filter.selectedManufacturers
-                ));
-            }
-
-            if (this.filter.productNumber) {
-                productCriteria.addFilter(Criteria.contains('product.productNumber', this.filter.productNumber));
-            }
-
-            if (this.filter.price.from !== null) {
-                productCriteria.addFilter(Criteria.range('product.price', { gte: this.filter.price.from }));
-            }
-
-            if (this.filter.price.to !== null) {
-                productCriteria.addFilter(Criteria.range('product.price', { lte: this.filter.price.to }));
-            }
-
-            if (this.filter.stock.from !== null) {
-                productCriteria.addFilter(Criteria.range('product.stock', { gte: this.filter.stock.from }));
-            }
-
-            if (this.filter.stock.to !== null) {
-                productCriteria.addFilter(Criteria.range('product.stock', { lte: this.filter.stock.to }));
-            }
-
-            if (this.filter.missingCover) {
-                productCriteria.addFilter(Criteria.equals('product.cover', null));// not working - value null crashes server therefor replaces with empty string here
-            }
-
-            if (this.filter.salesChannel) {
-                productCriteria.addFilter(Criteria.equals('product.visibilities.salesChannelId', this.filter.salesChannel))
-            }
-
-            return productCriteria;
         },
 
         onInlineEditSave(promise, product) {
@@ -355,36 +289,6 @@ Component.register('sw-product-list', {
                 allowResize: true,
                 align: 'right'
             }];
-        },
-
-        getManufacturerList() {
-            this.manufacturerRepository.search(new Criteria, Shopware.Context.api).then(response => {
-                let manufacturers = response;
-
-                manufacturers = manufacturers.map((manufacturer) => {
-                    return {
-                        id: manufacturer.id,
-                        name: manufacturer.name
-                    }
-                })
-
-                this.manufacturers = manufacturers;
-            })
-        },
-
-        getSalesChannelList() {
-            this.salesChannelRepository.search(new Criteria, Shopware.Context.api).then(response => {
-                let salesChannels = response;
-
-                salesChannels = salesChannels.map((salesChannel) => {
-                    return {
-                        id: salesChannel.id,
-                        name: salesChannel.name
-                    }
-                })
-
-                this.salesChannels = salesChannels;
-            })
         },
 
         onDuplicate(referenceProduct) {
