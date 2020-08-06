@@ -16,6 +16,187 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     
 * Core
     * Adding ability to show/hide properies from product filter panel in product listing
+### 6.2.4
+
+**Addition / Changes**
+    
+* Administration
+    * Fixed active state in the flyout navigation
+    * Fixed `sw-modal` styles for `variant="full"` to stay at fullpage size
+    * Custom fields assigned to a category entity can now also be configured in categories of type "link"
+    * Added block `sw_customer_list_sidebar_filter_items` to `sw-customer-list` allow easier adding filters to the sidebar
+    * Added block `sw_corder_list_sidebar_filter_items` to `sw-order-list` allow easier adding filters to the sidebar
+
+* Core
+    * Added `ProductCartProcessor::ALLOW_PRODUCT_LABEL_OVERWRITES`
+    * Added `user:change-password` command to set the password of an administration user
+    * Added `HttpCacheGenerateKeyEvent` to allow changing the hash
+    
+* Storefront
+    * Deprecated twig variable `accounTypeRequired` in `address-form.html.twig`, use `accountTypeRequired` instead
+    * Fixed property sorting for multi language shops
+    * Added an additional class to the cart offcanvas called `cart-offcanvas`
+    * Added all language flags according to language packs
+
+### 6.2.3
+
+**Addition / Changes**
+
+* Administration
+    * Added `v-model` attribute to input field in `sw-property-search`
+    * Implemented blocks for the different options in the `sw-cms-el-config-product-box` modules `sw-select-field`s.
+    This allows appending additional options to the `sw-select-field`s.
+        * Added `{% block sw_cms_element_product_box_config_layout_select_options %}`
+        * Added `{% block sw_cms_element_product_box_config_displaymode_select_options %}`
+        * Added `{% block sw_cms_element_product_box_config_settings_vertical_align_options %}`
+    * Added property `placeholderIsPassword` to `sw-password-field` component
+    * Added CSP header to the admin page. Inline scripts are now disallowed by default. You have to add a nonce attribute with the value `cspNonce` to authorize inline scripts. 
+    * Refactored password confirmation in `sw-profile-index`
+        * Deprecated property `oldPassword` use `confirmPassword instead
+        * Deprecated method `validateOldPassword`, as it is not necessary anymore
+        * Deprecated block `sw_profile_index_password_card_old_password_field` in template
+    * Refactored password confirmation in `sw-settings-user-detail`
+        * Deprecated methods `onChangePassword`, `onClosePasswordModal`, `onSubmit`, as it is not necessary anymore
+        * Deprecated blocks `sw_settings_user_detail_grid_change_password` and `sw_settings_user_detail_content_password_modal in template
+    * Added password confirmation to `sw-settings-user-list` for deleting users 
+
+* Core
+    * Added `Czech koruna` as currency
+    * Added `GuestCustomerRegisterEvent`
+    * Changed `\Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute` to return empty string instead null.
+    * Fixed RetryMessage-mechanism if message handler class was not a public service
+    * Added ProductCrossSelling Events
+        * Added `CrossSellingProductCriteriaEvent`
+        * Added `CrossSellingProductListCriteriaEvent`
+        * Added `CrossSellingProductStreamCriteriaEvent`
+    * Changed `\Shopware\Core\System\SalesChannel\Api\StructEncoder` to work correctly with aggregations
+    * Changed `product.listing_prices` data structure. The new structure will be reindexed by `\Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer` but may take same time to complete
+    * Simplified storefront snippet file loading, PHP classes for snippet files aren't necessary anymore.
+    * Deprecated the `\Shopware\Core\System\Snippet\Files\SnippetFileInterface` interface, as it is not necessary anymore
+    * Fixed `/api/v2/_info/swagger.html`
+    * Added configuration `media.enable_url_upload_feature` in `shopware.yaml` to disable the "Upload media via URL" feature
+    * Added configuration `media.enable_url_validation` in `shopware.yaml` to disable the URL validation when a media is uploaded via URL
+    * Added decoratable class `Shopware\Core\Content\Media\File\FileUrlValidator`
+    * Added the following headers to improve security:
+        * `Strict-Transport-Security: max-age=31536000; includeSubDomains` if the request is secure (HTTPS)
+        * `X-Frame-Options: deny`
+        * `X-Content-Type-Options: nosniff`
+        * `Content-Security-Policy: script-src 'none'; object-src 'none'; base-uri 'self';` default for requests with route scope other than `administration` or `storefront`
+
+    * Added option `cookie_secure : 'auto'` to `framework.yaml` to secure the session cookie for request over secure connection
+    * Enabled `secure` flag for every other used cookies
+    * `\Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler::replaceCsrfToken` requires now the current request as second function parameter.
+* Storefront
+    * Added block `component_offcanvas_cart_header_item_counter` to `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`
+    * Added the `--keep-cache` option to the `http:cache:warm:up` to keep the current cache as warmup target
+    * Show required asterisk on telephone number field if the field is required in registration form.
+    * Added request attribute with key `\Shopware\Storefront\Framework\Routing\RequestTransformer::STOREFRONT_URL` for the base url of the storefront. It contains scheme, host, port, sub directory of the web root and the virtual path. Example: http://localhost:8000/subdir/de
+    * Fixed urls in emails for shops with virtual paths like /de
+    * Added `GenericPageLoaderInterface` to `CheckoutConfirmPageLoader`
+    * Removed headers `sw-version-id`, `sw-context-token` and `sw-language-id` from Storefront response.
+
+**Removals**
+
+* Administration
+    * Disallow adding script with `document.write` due to new CSP header. Use `document.createElement('script')` and `element.appendChild` instead.
+
+* Core
+
+* Storefront
+
+### 6.2.2
+
+**Addition / Changes**
+
+* Storefront
+    * Fixed multiple inheritance for style and script files
+    
+### 6.2.1
+
+**Addition / Changes**
+
+* Administration
+    * Added property `popoverClasses` to `sw-select-result-list` and `sw-single-select`
+    * Fixed broken promotion exclusion configuration in `sw-promotion-basic-form`
+    * Fixed positioning mixin for more than 25 entries
+    * Added twig blocks to the `sw-product-detail` template for the sidebar and sidebar-items
+        * `sw_product_detail_sidebar`
+        * `sw_product_detail_sidebar_additional_items`
+    * Fixed snippet merging when plugins override existing snippets, which already exist in that specific locale 
+ 
+    * Fixed the administration multi-inheritance if a component was overriden and extended by multiple components
+    * Added new filterable field to `sw-property-list` and `sw-property-filter`
+    * Added string for `packUnitPlural` to `sw-product-stream/snippet/en-EN.json` and `sw-product-stream/snippet/de-DE.json` 
+        * Added `packUnitPlural`
+    * Added strings for `packUnitPlural` to `sw-product/snippet/en-GB.json` and `sw-product/snippet/de-DE.json` 
+        * Added `placeholderPackUnitPlural`
+        * Added `labelPackUnitPlural`
+        * Added `packUnitPluralHelpText`
+    * Added translated `packUnitPlural` field to `sw-product-packaging-form`
+    * Added `packUnitPlural` to `entity-schema.mock.js`
+    * Added block `sw_product_packaging_form_height_field` to `sw-product-packaging-form`
+    * Price input fields substitute commas with dots automatically in Add Product page.
+    * Added a link to the customer name in the order overview. With this it is now possible to open the customer directly from the overview.
+    * Added property `fileAccept` to 
+        * `sw-media-upload-v2`
+        * `sw-media-compact-upload-v2`
+        * `sw-media-modal-v2`
+        * `sw-media-index`
+    * Change default value of `accept` in `sw-media-index` to `*/*` to allow all types of files in media management 
+    * Added config option for disabling reviews in the storefront
+    * Fixed the displaying of the media filename in Media Library grid in case it only contains digits
+    * Added tooltips to the toolbar of text editor
+    * Added isInlineEdit property to component `sw-text-editor-toolbar`
+    * Added language switch to Scale Units list page to translate scale units
+    * Added `zIndex` prop on `sw-context-button` component, to allow overriding the default z-index
+    * Fix timezone of `orderDate` in order grid
+    * Added image lazy loading capability to the `ZoomModalPlugin` which allows to load images only if the zoom modal was opened
+
+* Core
+    * Added new `PromotionNotFoundError` and `PromotionNotEligibleError` errors to the cart if a promotion couldn't be added
+    * Added ability to show/hide properties from product filter panel in product listing
+    * Added protected `pack_unit_plural` to `Migration1536233120Product.php`
+    * Added protected `packUnitPlural` to `ProductTranslationEntity.php`
+    * Added StringField `packUnitPlural` to `ProductTranslationDefinition.php`
+    * Added protected `packUnitPlural` to `ProductEntity.php`
+    * Added TranslatedField `packUnitPlural` to `ProductDefinition.php`
+    * `SystemConfigService::get` will now return the value that was set with `SystemConfigService::set`. Now when a `0` is set, a `0` will be the returned with `get` instead of `null`.
+    * Added `\Shopware\Core\Content\Product\Exception\ReviewNotActiveException` exception
+        * This exception is thrown if the review routes are called if reviews are disabled
+    * Fixed a type error in the `\Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository` in a sorting closure
+    * Added possibility to delete orders without documents on `sw-order-list`
+    * Added methods `isProductGroup` `setIsProductGroup` `isVariantProduct` in `\Shopware\Core\Content\Product\ProductEntity` 
+    * DB level write operation (e.g. cascade deletes) are not validated against the write prtoection anymore
+    * Changed exit code from command `es:index` to 0
+    * Added support for nullable values for MultiInsertQueryQueue
+ 
+* Storefront
+    * Added `pack_unit_plural` to `buy-widget-form.html.twig`
+    * The `ThemeFileResolver` doesn't produce duplicates if you have a theme that inherits from `@Storefront` and contains `@Plugins` (NEXT-8435)
+    * Removed `required` status for `firstName` and `lastName`on `newsletter-form.html.twig`
+    * Added fallback for missing `getFirstName` and `getLastName` on `NewsletterRegisterEvent.php`
+    * Added new Twig blocks in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
+        * page_checkout_aside_actions_csrf
+        * page_checkout_aside_actions_payment_method_id
+        * page_checkout_confirm_form_submit
+    * Added JS plugins `FormCsrfHandler` and `FormPreserver` to the `<form>` element in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
+    * Removed alphanumeric filter product numbers in the quick add action
+    * If all variants are expanded in the listing display the buy button
+    * Fixed mail headers and footers not being properly attached to mails when sending mails from the administration
+    * Excluded Promotions will now be handled in `PromotionCalculator` and `PromotionDeliveryCalculator` instead of `PromotionCalculator`
+    * The storefront session is now invalidated after logout. This can be configured in `Settings -> Login / Registration`
+    * Enabled the Slugify TwigFilter extension
+    * Added new events to be able to extend the requests which are used for the Store-API calls. Use them to pass request parameters from the original storefront request to the new request for the Store-API call
+        * `CancelOrderRouteRequestEvent`
+        * `CurrencyRouteRequestEvent`
+        * `HandlePaymentMethodRouteRequestEvent`
+        * `LanguageRouteRequestEvent`
+        * `OrderRouteRequestEvent`
+        * `PaymentMethodRouteRequestEvent`
+        * `SalutationRouteRequestEvent`
+        * `SetPaymentOrderRouteRequestEvent`
+        * `ShippingMethodRouteRequestEvent`
+
 
 ### 6.2.0
 
@@ -34,7 +215,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added block `sw_product_packaging_form_height_field` to `sw-product-packaging-form`
     * Added `onDuplicate` to `sw-product-detail` and `sw-product-list`
     * Added Overwrites parameter to `clone` in `repository.data.js`. Overwrites contain entity field which should be overwritten with the given data. Example in `sw-product-detail` -> `onDuplicate`
-    * Added `disabled` attribute of fields to `sw-customer-address-form` component
     * Deprecated `tagStore` in `sw-newsletter-recipient-list`
     * Moved `sw-manufacturer`, it now uses `repositoryFactory` instead of `StateDeprecated` for fetching and editing data
         * Deprecated `mediaStore`
@@ -48,6 +228,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Refactored sw-radio-field
         * Deprecated currentValue, use value instead
         * Deprecated watcher for value
+    * Added custom `slot` to `sw-radio-field` component
     * Added "Cache & Indexes" Module to system settings
     * The component sw-integration-list was refactored to use the `repositoryFactory` instead of `StateDeprecated` to fetch and save data
         * Changed default data `integrations` from `[]` to `null`
@@ -632,6 +813,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Removed alphanumeric filter product numbers in the quick add action
     * Removed `required` status for `firstName` and `lastName`on `newsletter-form.html.twig`
     * Added fallback for missing `getFirstName` and `getLastName` on `NewsletterRegisterEvent.php`
+    * Theme configuration now allows zero as a value when overriding
+    * Changed type of `GenericPageLoader` to `GenericPageLoaderInterface` in `AccountEditOrderPageLoader`
+    * Deprecated block `page_product_detail_price_unit_refrence_content` in `buy-widget-price.html.twig`, use `page_product_detail_price_unit_reference_content` instead
+    * Fix wrong behavior in `AddToCartPlugin` if user clicks on add to cart button before the js plugin is completely loaded
 
 **Removals**
 
@@ -779,3 +964,15 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Removed `HttpClient()` constructor parameters in `src/Storefront/Resources/app/storefront/src/service/http-client.service.js`
     * Fix timezone of `orderDate` in ordergrid
     * Added image lazy loading capability to the `ZoomModalPlugin` which allows to load images only if the zoom modal was opened
+
+
+### 6.2.1
+
+**Addition / Changes**
+
+* Administration
+    * Added `zIndex` prop on `sw-context-button` component, to allow overriding the default z-index
+    * Fix timezone of `orderDate` in ordergrid
+    * Added image lazy loading capability to the `ZoomModalPlugin` which allows to load images only if the zoom modal was opened
+    * Fix wrong behavior in `AddToCartPlugin` if user clicks on add to cart button before the js plugin is completely loaded
+    

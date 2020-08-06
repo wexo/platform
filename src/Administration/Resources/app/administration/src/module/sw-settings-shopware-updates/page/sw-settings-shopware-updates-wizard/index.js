@@ -142,10 +142,15 @@ Component.register('sw-settings-shopware-updates-wizard', {
                 if (context.code === 'FRAMEWORK__PLUGIN_HAS_DEPENDANTS') {
                     this.createNotificationWarning({
                         title: this.$tc('sw-plugin.errors.titlePluginDeactivationFailed'),
-                        message: this.$tc('sw-plugin.errors.messageDeactivationFailedBecauseOfActiveDependants', null, null, {
-                            dependency: context.meta.parameters.dependency,
-                            dependantNames: context.meta.parameters.dependantNames
-                        })
+                        message: this.$tc(
+                            'sw-plugin.errors.messageDeactivationFailedBecauseOfActiveDependants',
+                            null,
+                            null,
+                            {
+                                dependency: context.meta.parameters.dependency,
+                                dependantNames: context.meta.parameters.dependantNames
+                            }
+                        )
                     });
                 } else {
                     this.createNotificationError({
@@ -176,15 +181,10 @@ Component.register('sw-settings-shopware-updates-wizard', {
     },
     computed: {
         updatePossible() {
-            let requirementsMet = true;
-            this.requirements.forEach(item => {
-                if (item.result === 0) {
-                    requirementsMet = false;
-                }
-            });
-
-            return requirementsMet;
+            // check if result of every requirement is true. If it's the case return true otherwise return false.
+            return this.requirements.every(requirement => requirement.result === true);
         },
+
         updateButtonTooltip() {
             if (this.updatePossible) {
                 return {
@@ -198,6 +198,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
                 position: 'bottom'
             };
         },
+
         changelog() {
             if (!this.updateInfo.version) {
                 return '';
@@ -209,19 +210,23 @@ Component.register('sw-settings-shopware-updates-wizard', {
 
             return this.updateInfo.changelog.en.changelog;
         },
+
         displayIncompatiblePluginsWarning() {
             return this.plugins.some((plugin) => {
                 return plugin.statusName !== 'compatible' && plugin.statusName !== 'notInStore';
             });
         },
+
         displayUnknownPluginsWarning() {
             return this.plugins.some((plugin) => {
                 return plugin.statusName === 'notInStore';
             });
         },
+
         displayAllPluginsOkayInfo() {
             return !(this.displayIncompatiblePluginsWarning || this.displayUnknownPluginsWarning);
         },
+
         optionDeactivateIncompatibleTranslation() {
             const deactivateIncompatTrans = this.$tc('sw-settings-shopware-updates.plugins.actions.deactivateIncompatible');
             const isRecommended = this.displayIncompatiblePluginsWarning && !this.displayUnknownPluginsWarning ?
@@ -229,6 +234,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
 
             return `${deactivateIncompatTrans} ${isRecommended}`;
         },
+
         optionDeactivateAllTranslation() {
             const deactiveAllTrans = this.$tc('sw-settings-shopware-updates.plugins.actions.deactivateAll');
             const isRecommended = this.displayIncompatiblePluginsWarning && this.displayUnknownPluginsWarning ?

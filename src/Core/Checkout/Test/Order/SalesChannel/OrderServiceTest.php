@@ -113,7 +113,7 @@ class OrderServiceTest extends TestCase
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $url = $domain . '/account/order/edit/' . $orderId;
+        $url = $domain . '/account/order/' . $order->getDeepLinkCode();
         $phpunit = $this;
         $eventDidRun = false;
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit, $url): void {
@@ -134,6 +134,60 @@ class OrderServiceTest extends TestCase
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+    }
+
+    public function testOrderDeliveryStateTransitionSendsMailDe(): void
+    {
+        $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $previousContext = $this->salesChannelContext;
+        $this->salesChannelContext = $contextFactory->create(
+            '',
+            Defaults::SALES_CHANNEL,
+            [
+                SalesChannelContextService::CUSTOMER_ID => $this->createCustomer('Jon', 'De'),
+                SalesChannelContextService::LANGUAGE_ID => $this->getDeDeLanguageId(),
+            ]
+        );
+        $orderId = $this->performOrder();
+
+        // getting the id of the order delivery
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('deliveries');
+
+        /** @var OrderEntity $order */
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $orderDeliveryId = $order->getDeliveries()->first()->getId();
+
+        $domain = 'http://shopware.' . Uuid::randomHex();
+        $this->setDomainForSalesChannel($domain, $this->getDeDeLanguageId());
+
+        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
+
+        /** @var EventDispatcher $dispatcher */
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $url = $domain . '/account/order/' . $order->getDeepLinkCode();
+        $phpunit = $this;
+        $eventDidRun = false;
+        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit, $url): void {
+            $phpunit->assertStringContainsString('Die Bestellung hat jetzt den Lieferstatus: Abgebrochen.', $event->getContents()['text/html']);
+            $phpunit->assertStringContainsString($url, $event->getContents()['text/html']);
+            $eventDidRun = true;
+        };
+
+        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+
+        $this->orderService->orderDeliveryStateTransition(
+            $orderDeliveryId,
+            'cancel',
+            new RequestDataBag(),
+            $this->salesChannelContext->getContext()
+        );
+
+        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
+
+        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        $this->salesChannelContext = $previousContext;
     }
 
     public function testOrderTransactionStateTransition(): void
@@ -182,7 +236,7 @@ class OrderServiceTest extends TestCase
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $url = $domain . '/account/order/edit/' . $orderId;
+        $url = $domain . '/account/order/' . $order->getDeepLinkCode();
         $phpunit = $this;
         $eventDidRun = false;
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit, $url): void {
@@ -273,7 +327,12 @@ class OrderServiceTest extends TestCase
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $url = $domain . '/account/order/edit/' . $orderId;
+        $criteria = new Criteria([$orderId]);
+
+        /** @var OrderEntity $order */
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+
+        $url = $domain . '/account/order/' . $order->getDeepLinkCode();
         $phpunit = $this;
         $eventDidRun = false;
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit, $url): void {
@@ -352,7 +411,7 @@ class OrderServiceTest extends TestCase
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $url = $domain . '/account/order/edit/';
+        $url = $domain . '/account/order';
         $phpunit = $this;
         $eventDidRun = false;
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit, $url): void {

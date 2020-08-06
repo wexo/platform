@@ -3,15 +3,15 @@ import AccountPageObject from '../../support/pages/account.page-object';
 
 const additionalProducts = [{
     name: '19% Product',
-    taxName: '19%',
+    taxName: 'Standard rate',
     productNumber: 'RS-1919',
 }, {
     name: '7% Product',
-    taxName: '7%',
+    taxName: 'Reduced rate',
     productNumber: 'RS-777',
 }, {
     name: 'Mixed Products',
-    taxName: '7%',
+    taxName: 'Reduced rate',
     productNumber: 'RS-719719',
 }];
 let product = {};
@@ -42,7 +42,7 @@ describe('Checkout: Use different taxes in products while checkout', () => {
                 })
             });
 
-            it('@package @checkout: Run checkout', () => {
+            it('@base @checkout: Run checkout', () => {
                 const page = new CheckoutPageObject();
                 const accountPage = new AccountPageObject();
                 let productName = product.name;

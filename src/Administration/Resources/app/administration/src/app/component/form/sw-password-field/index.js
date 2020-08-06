@@ -21,6 +21,12 @@ Component.extend('sw-password-field', 'sw-text-field', {
             default: true
         },
 
+        placeholderIsPassword: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
         autocomplete: {
             type: String,
             required: false
@@ -36,6 +42,13 @@ Component.extend('sw-password-field', 'sw-text-field', {
     computed: {
         typeFieldClass() {
             return this.passwordToggleAble ? 'sw-field--password' : 'sw-field--password sw-field--password--untoggable';
+        },
+
+        passwordPlaceholder() {
+            return this.showPassword ||
+                !this.placeholderIsPassword ?
+                this.placeholder :
+                '*'.repeat(this.placeholder.length ? this.placeholder.length : 6);
         }
     },
 
