@@ -25,7 +25,7 @@ const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 Component.register('sw-media-upload-v2', {
     template,
 
-    inject: ['repositoryFactory', 'mediaService'],
+    inject: ['repositoryFactory', 'mediaService', 'configService'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -89,6 +89,12 @@ Component.register('sw-media-upload-v2', {
             type: Object,
             required: false,
             default: null
+        },
+
+        fileAccept: {
+            type: String,
+            required: false,
+            default: 'image/*'
         }
     },
 
@@ -98,7 +104,8 @@ Component.register('sw-media-upload-v2', {
             inputType: INPUT_TYPE_FILE_UPLOAD,
             preview: null,
             isDragActive: false,
-            defaultFolderId: null
+            defaultFolderId: null,
+            isUploadUrlFeatureEnabled: false
         };
     },
 
@@ -171,6 +178,10 @@ Component.register('sw-media-upload-v2', {
 
                 return this.useFileUpload;
             }
+        },
+
+        uploadUrlFeatureEnabled() {
+            return this.isUploadUrlFeatureEnabled;
         }
     },
 
@@ -202,6 +213,10 @@ Component.register('sw-media-upload-v2', {
             if (this.defaultFolder) {
                 this.defaultFolderId = await this.getDefaultFolderId();
             }
+
+            this.configService.getConfig().then((result) => {
+                this.isUploadUrlFeatureEnabled = result.settings.enableUrlFeature;
+            });
         },
 
         mountedComponent() {
