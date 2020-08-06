@@ -110,6 +110,10 @@ Component.register('sw-admin-menu', {
         document.removeEventListener('mouseleave', this.closeFlyout);
     },
 
+    beforeDestroy() {
+        document.removeEventListener('mouseleave', this.closeFlyout);
+    },
+
     methods: {
         createdComponent() {
             Shopware.Service('loginService').notifyOnLoginListener();
@@ -229,7 +233,8 @@ Component.register('sw-admin-menu', {
         },
         closeFlyout(event) {
             if (event.toElement && event.toElement.closest('.sw-admin-menu__navigation-list-item')) {
-                if (event.toElement.closest('.sw-admin-menu__navigation-list-item').classList.contains(this.flyoutEntries[0].parent)) {
+                if (event.toElement.closest('.sw-admin-menu__navigation-list-item')
+                    .classList.contains(this.flyoutEntries[0].parent)) {
                     return;
                 }
             }

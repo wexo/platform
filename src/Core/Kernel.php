@@ -25,7 +25,7 @@ class Kernel extends HttpKernel
     /**
      * @var string Fallback version if nothing is provided via kernel constructor
      */
-    public const SHOPWARE_FALLBACK_VERSION = '9999999-dev';
+    public const SHOPWARE_FALLBACK_VERSION = '6.2.9999999-dev';
 
     /**
      * @var Connection|null
@@ -95,7 +95,6 @@ class Kernel extends HttpKernel
         /** @var class-string<\Symfony\Component\HttpKernel\Bundle\Bundle> $class */
         foreach ($bundles as $class => $envs) {
             if (isset($envs['all']) || isset($envs[$this->environment])) {
-                /** @var \Symfony\Component\HttpKernel\Bundle\Bundle $bundle */
                 $bundle = new $class();
                 $instanciatedBundleNames[] = $bundle->getName();
 
@@ -237,8 +236,8 @@ class Kernel extends HttpKernel
         $routes->import($confDir . '/{routes}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, '/', 'glob');
         $routes->import($confDir . '/{routes}' . self::CONFIG_EXTS, '/', 'glob');
 
-        $this->addBundleRoutes($routes);
         $this->addApiRoutes($routes);
+        $this->addBundleRoutes($routes);
         $this->addFallbackRoute($routes);
     }
 
