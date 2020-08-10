@@ -24,7 +24,7 @@ describe('Payment: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/payment-method/**',
+            url: `${Cypress.env('apiPath')}/payment-method/**`,
             method: 'patch'
         }).as('saveData');
 
@@ -47,7 +47,7 @@ describe('Payment: Test crud operations', () => {
             cy.get('input[name=sw-field--rule-priority]').type('1');
 
             rulePage.createBasicSelectCondition({
-                type: 'Is new customer',
+                type: 'New customer',
                 selector: '.sw-condition',
                 operator: null,
                 value: 'Yes'

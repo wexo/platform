@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\EntityProtection;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -68,12 +69,6 @@ class EntityProtectionValidatorTest extends TestCase
             ['POST', 'search-ids/plugin'], // search ids
 
             // nested routes
-
-            ['GET', 'user/' . Uuid::randomHex() . '/access-keys/' . Uuid::randomHex()], // detail
-            ['GET', 'user/' . Uuid::randomHex() . '/access-keys'], // list
-            ['POST', 'user/' . Uuid::randomHex() . '/access-keys'], // create
-            ['PATCH', 'user/' . Uuid::randomHex() . '/access-keys/' . Uuid::randomHex()], // update
-            ['DELETE', 'user/' . Uuid::randomHex() . '/access-keys/' . Uuid::randomHex()], // delete
             ['POST', 'search/user/' . Uuid::randomHex() . '/access-keys'], // search
             ['POST', 'search-ids/user/' . Uuid::randomHex() . '/access-keys'], // search ids
         ];
@@ -186,67 +181,25 @@ class EntityProtectionValidatorTest extends TestCase
         static::assertNotEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
-    public function testItBlocksForbiddenNestedWrites(): void
+    public function testItDoesNotValidateCascadeDeletes(): void
     {
-        $userId = Uuid::randomHex();
-        /** @var EntityRepositoryInterface $userRepository */
-        $userRepository = $this->getContainer()->get('user.repository');
-
+        // system_config has a cascade delete on sales_channel
         $this->getBrowser()
             ->request(
-                'POST',
-                '/api/v' . PlatformRequest::API_VERSION . '/user',
-                [
-                    'id' => $userId,
-                    'username' => 'adminUser',
-                    'password' => 'test',
-                    'active' => true,
-                    'firstName' => 'admin',
-                    'lastName' => 'user',
-                    'email' => 'test@test.com',
-                    'localeId' => $this->getLocaleIdOfSystemLanguage(),
-                    'accessKeys' => [
-                        [
-                            'accessKey' => 'access',
-                            'secretAccessKey' => 'notASecret',
-                        ],
-                    ],
-                ]
-            );
-
-        $response = $this->getBrowser()->getResponse();
-
-        static::assertEquals(403, $response->getStatusCode(), $response->getContent());
-
-        $result = $userRepository->searchIds(new Criteria([$userId]), Context::createDefaultContext());
-        static::assertEquals(0, $result->getTotal());
-
-        $this->getBrowser()
-            ->request(
-                'POST',
-                '/api/v' . PlatformRequest::API_VERSION . '/user',
-                [
-                    'id' => $userId,
-                    'username' => 'adminUser',
-                    'password' => 'test',
-                    'active' => true,
-                    'firstName' => 'admin',
-                    'lastName' => 'user',
-                    'email' => 'test@test.com',
-                    'localeId' => $this->getLocaleIdOfSystemLanguage(),
-                    'media' => [
-                        [
-                            'title' => 'test',
-                        ],
-                    ],
-                ]
+                'DELETE',
+                '/api/v' . PlatformRequest::API_VERSION . '/sales-channel/' . Defaults::SALES_CHANNEL
             );
 
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(204, $response->getStatusCode(), $response->getContent());
 
-        $result = $userRepository->searchIds(new Criteria([$userId]), Context::createDefaultContext());
-        static::assertEquals(1, $result->getTotal());
+        /** @var EntityRepositoryInterface $salesChannelRepository */
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+
+        static::assertEquals(
+            1,
+            $salesChannelRepository->search(new Criteria(), Context::createDefaultContext())->getTotal()
+        );
     }
 }

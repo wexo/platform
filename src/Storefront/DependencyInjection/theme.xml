@@ -21,6 +21,7 @@
             <argument>%kernel.debug%</argument>
             <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
+            <argument type="service" id="media.repository"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileImporter"/>
@@ -32,6 +33,7 @@
             <argument type="service" id="media_folder.repository"/>
             <argument type="service" id="theme_media.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
+            <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
         </service>
 
@@ -187,7 +189,7 @@
         <service id="Shopware\Storefront\Theme\Subscriber\UpdateSubscriber">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleService"/>
-            <argument type="service" id="theme.repository" />
+            <argument type="service" id="sales_channel.repository" />
 
             <tag name="kernel.event_subscriber"/>
         </service>

@@ -15,5 +15,16 @@
   "reporter": "cypress-multi-reporters",
   "reporterOptions": {
     "configFile": "reporter-config.json"
+  },
+  "env": {
+    "apiVersion": "v1",
+    "user": "admin",
+    "pass": "shopware",
+    "salesChannelName": "Storefront",
+    "admin": "/admin",
+    "apiPath": "**/api/v*",
+    "locale": "en-GB",
+    "projectRoot": "/app",
+    "localUsage": false
   }
 }

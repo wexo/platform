@@ -25,7 +25,7 @@ class Kernel extends HttpKernel
     /**
      * @var string Fallback version if nothing is provided via kernel constructor
      */
-    public const SHOPWARE_FALLBACK_VERSION = '9999999-dev';
+    public const SHOPWARE_FALLBACK_VERSION = '6.2.9999999-dev';
 
     /**
      * @var Connection|null
@@ -90,15 +90,19 @@ class Kernel extends HttpKernel
     {
         /** @var array $bundles */
         $bundles = require $this->getProjectDir() . '/config/bundles.php';
+        $instanciatedBundleNames = [];
 
-        /** @var string $class */
+        /** @var class-string<\Symfony\Component\HttpKernel\Bundle\Bundle> $class */
         foreach ($bundles as $class => $envs) {
             if (isset($envs['all']) || isset($envs[$this->environment])) {
-                yield new $class();
+                $bundle = new $class();
+                $instanciatedBundleNames[] = $bundle->getName();
+
+                yield $bundle;
             }
         }
 
-        yield from $this->pluginLoader->getBundles($this->getKernelParameters());
+        yield from $this->pluginLoader->getBundles($this->getKernelParameters(), $instanciatedBundleNames);
     }
 
     public function getProjectDir()
@@ -232,8 +236,8 @@ class Kernel extends HttpKernel
         $routes->import($confDir . '/{routes}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, '/', 'glob');
         $routes->import($confDir . '/{routes}' . self::CONFIG_EXTS, '/', 'glob');
 
-        $this->addBundleRoutes($routes);
         $this->addApiRoutes($routes);
+        $this->addBundleRoutes($routes);
         $this->addFallbackRoute($routes);
     }
 

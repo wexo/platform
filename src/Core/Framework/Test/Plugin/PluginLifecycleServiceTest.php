@@ -122,6 +122,8 @@ class PluginLifecycleServiceTest extends TestCase
             ->get(Connection::class)
             ->rollBack();
 
+        $this->resetSystemLanguage();
+
         if (isset($_SERVER['FAKE_MIGRATION_NAMESPACE'])) {
             unset($_SERVER['FAKE_MIGRATION_NAMESPACE']);
         }
@@ -189,6 +191,11 @@ class PluginLifecycleServiceTest extends TestCase
     public function testDeactivatePluginNotActivatedThrowsException(): void
     {
         $this->deactivatePluginNotActivatedThrowsException($this->context);
+    }
+
+    public function testDeactivatePluginWithException(): void
+    {
+        $this->deactivatePluginWithException($this->context);
     }
 
     public function testRemoveMigrations(): void
@@ -558,6 +565,23 @@ class PluginLifecycleServiceTest extends TestCase
         $this->expectException(PluginNotActivatedException::class);
         $this->expectExceptionMessage(sprintf('Plugin "%s" is not activated.', self::PLUGIN_NAME));
         $this->pluginLifecycleService->deactivatePlugin($pluginInstalled, $context);
+    }
+
+    private function deactivatePluginWithException(Context $context): void
+    {
+        $pluginActivated = $this->installAndActivatePlugin($context);
+
+        $context->addExtension(SwagTest::THROW_ERROR_ON_DEACTIVATE, new ArrayStruct());
+
+        try {
+            $this->pluginLifecycleService->deactivatePlugin($pluginActivated, $context);
+        } catch (\Throwable $exception) {
+            static::assertInstanceOf(\BadFunctionCallException::class, $exception);
+            static::assertStringContainsString('Deactivate throws an error', $exception->getMessage());
+        }
+
+        $pluginDeactivated = $this->getTestPlugin($context);
+        static::assertTrue($pluginDeactivated->getActive());
     }
 
     private function removeMigrations(Context $context): void
