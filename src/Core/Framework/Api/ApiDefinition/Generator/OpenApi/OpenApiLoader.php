@@ -6,9 +6,9 @@ use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
 use OpenApi\Annotations\Schema;
-use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 use function OpenApi\scan;
+use const OpenApi\Annotations\UNDEFINED;
 
 class OpenApiLoader
 {
@@ -21,13 +21,13 @@ class OpenApiLoader
     ];
 
     /**
-     * @var RouteCollection
+     * @var RouterInterface
      */
-    private $routeCollection;
+    private $router;
 
     public function __construct(RouterInterface $router)
     {
-        $this->routeCollection = $router->getRouteCollection();
+        $this->router = $router;
     }
 
     public function load(string $api): OpenApi
@@ -42,7 +42,7 @@ class OpenApiLoader
                 /** @var Operation $operation */
                 $operation = $pathItem->$key;
                 if ($operation instanceof Operation && !in_array(OpenApiSchemaBuilder::API[$api]['name'], $operation->tags, true)) {
-                    $pathItem->$key = \OpenApi\Annotations\UNDEFINED;
+                    $pathItem->$key = UNDEFINED;
                 }
 
                 if ($operation instanceof Operation && \count($operation->tags) > 1) {
@@ -55,7 +55,7 @@ class OpenApiLoader
                     $operation->tags = array_values($operation->tags);
                 }
 
-                $allUndefined = ($pathItem->$key === \OpenApi\Annotations\UNDEFINED && $allUndefined === true);
+                $allUndefined = ($pathItem->$key === UNDEFINED && $allUndefined === true);
             }
 
             if (!$allUndefined) {
@@ -71,7 +71,7 @@ class OpenApiLoader
 
     private function getApiRoutes(): \Generator
     {
-        foreach ($this->routeCollection as $item) {
+        foreach ($this->router->getRouteCollection() as $item) {
             $path = $item->getPath();
             if (
                 strpos($path, '/api/') !== 0
@@ -98,7 +98,7 @@ class OpenApiLoader
                     continue;
                 }
 
-                if ($operation->parameters === \OpenApi\Annotations\UNDEFINED) {
+                if ($operation->parameters === UNDEFINED) {
                     continue;
                 }
 

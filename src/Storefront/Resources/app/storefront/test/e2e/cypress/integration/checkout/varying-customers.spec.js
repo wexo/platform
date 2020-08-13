@@ -53,7 +53,7 @@ describe('Checkout: Proceed checkout using various customers', () => {
                 const page = new CheckoutPageObject();
                 const accountPage = new AccountPageObject();
                 const price = customer.displayGross ? product.price[0].gross : product.price[0].net;
-                const vatSnippet = customer.displayGross ? 'VAT included' : 'VAT excluded';
+                const vatSnippet = customer.displayGross ? 'incl. VAT' : 'excl. VAT';
 
                 // Login
                 cy.get(accountPage.elements.loginCard).should('be.visible');
@@ -103,7 +103,7 @@ describe('Checkout: Proceed checkout using various customers', () => {
 
                 // Checkout
                 cy.get('.offcanvas-cart-actions .btn-primary').click();
-                cy.get('.confirm-tos .card-title').contains('Terms, conditions and cancellation policy');
+                cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
                 cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
                 cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
                 cy.get('.confirm-address').contains('Pep Eroni');

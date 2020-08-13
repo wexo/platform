@@ -49,7 +49,6 @@ import GallerySliderPlugin from 'src/plugin/slider/gallery-slider.plugin';
 import ProductSliderPlugin from 'src/plugin/slider/product-slider.plugin';
 import ZoomModalPlugin from 'src/plugin/zoom-modal/zoom-modal.plugin';
 import MagnifierPlugin from 'src/plugin/magnifier/magnifier.plugin';
-import ImageZoomPlugin from 'src/plugin/image-zoom/image-zoom.plugin';
 import VariantSwitchPlugin from 'src/plugin/variant-switch/variant-switch.plugin';
 import CmsSlotReloadPlugin from 'src/plugin/cms-slot-reload/cms-slot-reload.plugin';
 import CmsSlotHistoryReloadPlugin from 'src/plugin/cms-slot-reload/cms-slot-history-reload.plugin';
@@ -75,6 +74,7 @@ import CountryStateSelectPlugin from 'src/plugin/forms/form-country-state-select
 import EllipsisPlugin from 'src/plugin/ellipsis/ellipsis.plugin';
 import GoogleAnalyticsPlugin from 'src/plugin/google-analytics/google-analytics.plugin';
 import SwagBlockLink from 'src/helper/block-link.helper';
+import StoreApiClient from 'src/service/store-api-client.service';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -116,7 +116,6 @@ PluginManager.register('GallerySlider', GallerySliderPlugin, '[data-gallery-slid
 PluginManager.register('ProductSlider', ProductSliderPlugin, '[data-product-slider]');
 PluginManager.register('ZoomModal', ZoomModalPlugin, '[data-zoom-modal]');
 PluginManager.register('Magnifier', MagnifierPlugin, '[data-magnifier]');
-PluginManager.register('ImageZoom', ImageZoomPlugin, '[data-image-zoom]');
 PluginManager.register('VariantSwitch', VariantSwitchPlugin, '[data-variant-switch]');
 PluginManager.register('CmsSlotReload', CmsSlotReloadPlugin, '[data-cms-slot-reload]');
 PluginManager.register('CmsSlotHistoryReload', CmsSlotHistoryReloadPlugin, document);
@@ -148,6 +147,11 @@ if (window.csrf.enabled && window.csrf.mode === 'ajax') {
 if (window.gtagActive) {
     PluginManager.register('GoogleAnalytics', GoogleAnalyticsPlugin);
 }
+
+/** 
+ * @deprecated tag:v6.4.0 use storefront controller instead
+ */
+window.storeApiClient = StoreApiClient;
 
 /*
 run plugins

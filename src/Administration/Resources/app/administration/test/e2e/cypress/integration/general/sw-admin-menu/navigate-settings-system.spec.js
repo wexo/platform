@@ -24,7 +24,11 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('.sw-settings__tab-system').click();
-        cy.get('a[href="#/sw/settings/user/list"]').click();
+        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
+        cy.get('#sw-settings__content-grid-system').should('be.visible');
+
+        cy.contains('Users & permissions').should('be.visible');
+        cy.contains('Users & permissions').click();
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
@@ -43,6 +47,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('.sw-settings__tab-system').click();
+        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
+        cy.get('#sw-settings__content-grid-system').should('be.visible');
+
+        cy.get('a[href="#/sw/settings/store/index"]').should('be.visible');
         cy.get('a[href="#/sw/settings/store/index"]').click();
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -62,9 +70,12 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
 
-        cy.get('.sw-settings__tab-system').should('be.visible');
         cy.get('.sw-settings__tab-system').click();
+        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
+        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
+        cy.get('#sw-settings__content-grid-system').should('be.visible');
 
+        cy.get('#sw-settings-logging').should('be.visible');
         cy.get('#sw-settings-logging').click();
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -84,6 +95,11 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('.sw-settings__tab-system').click();
+        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
+        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
+        cy.get('#sw-settings__content-grid-system').should('be.visible');
+
+        cy.get('a[href="#/sw/settings/shopware/updates/index"]').should('be.visible');
         cy.get('a[href="#/sw/settings/shopware/updates/index"]').click();
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -103,6 +119,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('.sw-settings__tab-system').click();
+        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
+        cy.get('#sw-settings__content-grid-system').should('be.visible');
+
+        cy.get('a[href="#/sw/settings/custom/field/index"]').should('be.visible');
         cy.get('a[href="#/sw/settings/custom/field/index"]').click();
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -125,7 +145,11 @@ describe('Administration: Check module navigation in settings', () => {
             targetPath: '#/sw/settings/index',
             mainMenuId: 'sw-settings'
         });
-        cy.get('.sw-tabs-item[title="System"]').click();
+        cy.get('.sw-settings__tab-system').click();
+        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
+        cy.get('#sw-settings__content-grid-system').should('be.visible');
+
+        cy.get('a[href="#/sw/plugin/index"]').should('be.visible');
         cy.get('a[href="#/sw/plugin/index"]').click();
         cy.wait('@refresh').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
@@ -148,6 +172,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('.sw-settings__tab-system').click();
+        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
+        cy.get('#sw-settings__content-grid-system').should('be.visible');
+
+        cy.get('a[href="#/sw/integration/index"]').should('be.visible');
         cy.get('a[href="#/sw/integration/index"]').click();
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);

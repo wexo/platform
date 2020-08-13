@@ -20,6 +20,8 @@ class ApiService {
     }
 
     /**
+     * @deprecated tag:v6.4.0 - use src/core/data-new/repository.data.js search() function instead
+     *
      * Gets a list from the configured API end point using the page & limit.
      *
      * @param {Number} page
@@ -52,6 +54,8 @@ class ApiService {
         ids,
         'total-count-mode': totalCountMode = 0
     }) {
+        this.showDeprecationWarning('getList');
+
         let requestHeaders = this.getBasicHeaders(headers);
         const params = { page, limit };
 
@@ -115,6 +119,8 @@ class ApiService {
     }
 
     /**
+     * @deprecated tag:v6.4.0 - use src/core/data-new/repository.data.js get() function instead
+     *
      * Get the detail entity from the API end point using the provided entity id.
      *
      * @param {String|Number} id
@@ -123,6 +129,8 @@ class ApiService {
      * @returns {Promise<T>}
      */
     getById(id, additionalParams = {}, additionalHeaders = {}) {
+        this.showDeprecationWarning('getById');
+
         if (!id) {
             return Promise.reject(new Error('Missing required argument: id'));
         }
@@ -141,6 +149,8 @@ class ApiService {
     }
 
     /**
+     * @deprecated tag:v6.4.0 - use src/core/data-new/repository.data.js save() function instead
+     *
      * Updates an entity using the provided payload.
      *
      * @param {String|Number} id
@@ -150,6 +160,8 @@ class ApiService {
      * @returns {Promise<T>}
      */
     updateById(id, payload, additionalParams = {}, additionalHeaders = {}) {
+        this.showDeprecationWarning('updateById');
+
         if (!id) {
             return Promise.reject(new Error('Missing required argument: id'));
         }
@@ -168,6 +180,8 @@ class ApiService {
     }
 
     /**
+     * @deprecated tag:v6.4.0 - use src/core/data-new/repository.data.js delete() function instead
+     *
      * Delete associations of the entity.
      *
      * @param id
@@ -177,6 +191,8 @@ class ApiService {
      * @returns {*}
      */
     deleteAssociation(id, associationKey, associationId, additionalHeaders) {
+        this.showDeprecationWarning('deleteAssociation');
+
         if (!id || !associationId || !associationId) {
             return Promise.reject(new Error('Missing required arguments.'));
         }
@@ -195,6 +211,8 @@ class ApiService {
     }
 
     /**
+     * @deprecated tag:v6.4.0 - use src/core/data-new/repository.data.js create() function instead
+     *
      * Creates a new entity
      *
      * @param {any} payload
@@ -203,6 +221,8 @@ class ApiService {
      * @returns {Promise<T>}
      */
     create(payload, additionalParams = {}, additionalHeaders = {}) {
+        this.showDeprecationWarning('create');
+
         const params = additionalParams;
         const headers = this.getBasicHeaders(additionalHeaders);
 
@@ -217,6 +237,8 @@ class ApiService {
     }
 
     /**
+     * @deprecated tag:v6.4.0 - use src/core/data-new/repository.data.js delete() function instead
+     *
      * Deletes an existing entity
      *
      * @param {Number} id
@@ -225,6 +247,8 @@ class ApiService {
      * @returns {Promise<T>}
      */
     delete(id, additionalParams = {}, additionalHeaders = {}) {
+        this.showDeprecationWarning('delete');
+
         if (!id) {
             return Promise.reject(new Error('Missing required argument: id'));
         }
@@ -240,12 +264,17 @@ class ApiService {
     }
 
     /**
+     *
+     * @deprecated tag:v6.4.0 - use src/core/data-new/repository.data.js clone() function instead
+     *
      * Clones an existing entity
      *
      * @param {Number} id
      * @returns {Promise<T>}
      */
     clone(id) {
+        this.showDeprecationWarning('clone');
+
         if (!id) {
             return Promise.reject(new Error('Missing required argument: id'));
         }
@@ -259,7 +288,12 @@ class ApiService {
             });
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - use src/core/data-new/repository.data.js createVersion() function instead
+     */
     versionize(id, additionalParams = {}, additionalHeaders = {}) {
+        this.showDeprecationWarning('versionize');
+
         // todo fix route
         const route = `/_action/version/${this.apiEndpoint}/${id}`;
 
@@ -273,7 +307,12 @@ class ApiService {
             });
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - use src/core/data-new/repository.data.js mergeVersion() function instead
+     */
     mergeVersion(id, versionId, additionalParams, additionalHeaders) {
+        this.showDeprecationWarning('mergeVersion');
+
         if (!id) {
             return Promise.reject(new Error('Missing required argument: id'));
         }
@@ -327,6 +366,18 @@ class ApiService {
         };
 
         return Object.assign({}, basicHeaders, additionalHeaders);
+    }
+
+    showDeprecationWarning(functionName) {
+        Shopware.Utils.debug.warn(
+            `${this.apiEndpoint} - Api Service`,
+            // eslint-disable-next-line max-len
+            `The ${functionName} function is deprecated. Please use the 'repository.data.js' class for data handling of entities.`
+        );
+    }
+
+    getApiVersion() {
+        return Shopware.Context.api.apiVersion - 1;
     }
 
     /**

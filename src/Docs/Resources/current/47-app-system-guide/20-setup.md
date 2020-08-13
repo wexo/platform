@@ -70,7 +70,10 @@ It provides all the information concerning your app, as seen in the minimal vers
 </manifest>
 ```
 
-The app can now be installed by running `bin/console app:install MyExampleApp`.
+The app can now be installed by running `bin/console app:install --activate MyExampleApp`.
+
+**Note:** Like with plugins, apps get installed as inactive. You can activate them by passing the `--activate` flag
+to the `app:install` command or by executing the `app:activate` command.
 
 ### Meta data
 
@@ -84,6 +87,9 @@ attribute
 * `author`
 * `copyright`
 * `version`
+* `icon`: Optional, you can set the path to an icon that should be shown for your app
+* `license`: Optional
+* `privacy`: Optional, in this element you can link to your privacy policy
 
 ### Authorisation
 

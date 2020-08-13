@@ -17,6 +17,10 @@ Component.register('sw-settings-custom-field-set-detail', {
         ESCAPE: 'onCancel'
     },
 
+    inject: [
+        'repositoryFactory'
+    ],
+
     data() {
         return {
             set: {},
@@ -34,20 +38,30 @@ Component.register('sw-settings-custom-field-set-detail', {
 
     computed: {
         identifier() {
-            return this.set.config && this.set.config.label
+            return this.set.config && this.getInlineSnippet(this.set.config.label)
                 ? this.getInlineSnippet(this.set.config.label)
                 : this.set.name;
         },
 
         customFieldSetRepository() {
-            return Shopware.Service('repositoryFactory').create('custom_field_set');
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
+        customFieldRepository() {
+            return this.repositoryFactory.create('custom_field');
+        },
+
+        customFieldCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('customFieldSetId', this.setId));
+
+            return criteria;
         },
 
         customFieldSetCriteria() {
             const criteria = new Criteria();
 
             criteria.addAssociation('relations');
-            criteria.addAssociation('customFields');
 
             return criteria;
         },
@@ -95,7 +109,7 @@ Component.register('sw-settings-custom-field-set-detail', {
 
         onSave() {
             const setLabel = this.identifier;
-            const titleSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.titleSaveSuccess');
+            const titleSaveSuccess = this.$tc('global.default.success');
             const messageSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.messageSaveSuccess', 0, {
                 name: setLabel
             });

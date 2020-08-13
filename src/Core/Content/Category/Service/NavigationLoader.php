@@ -12,11 +12,15 @@ use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @Decoratable()
+ */
 class NavigationLoader implements NavigationLoaderInterface
 {
     /**
@@ -61,7 +65,9 @@ class NavigationLoader implements NavigationLoaderInterface
         $request->query->set('buildTree', false);
         $request->query->set('depth', $depth);
 
-        $categories = $this->navigationRoute->load($activeId, $rootId, $request, $context)->getCategories();
+        $categories = $this->navigationRoute
+            ->load($activeId, $rootId, $request, $context, new Criteria())
+            ->getCategories();
 
         $navigation = $this->getTree($rootId, $categories, $categories->get($activeId));
 

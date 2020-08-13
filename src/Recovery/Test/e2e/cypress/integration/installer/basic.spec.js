@@ -91,7 +91,13 @@ describe('Minimal install', () => {
 
         cy.get('#c_config_shop_currency').select('GBP');
 
-        cy.get('#c_config_shop_country').select('GBR');
+        // check if the shop currency is disabled in the additional currencies
+        cy.get('input#gbp').should('be.disabled');
+        cy.get('input#gbp').should('be.checked');
+
+        // add additional currencies
+        cy.get('input#sek').check({ force: true });
+        cy.get('input#eur').check({ force: true });
 
         cy.get('#c_config_admin_email').clear().type('e2e@example.com');
 
@@ -99,6 +105,8 @@ describe('Minimal install', () => {
         cy.get('#c_config_admin_lastName').clear().type('shopware');
         cy.get('#c_config_admin_username').clear().type('admin');
         cy.get('#c_config_admin_password').clear().type('shopware');
+
+        cy.get('.alert.alert-error').should('not.exist');
 
         cy.get('.btn.btn-primary').contains('Next').click();
 
@@ -172,7 +180,7 @@ describe('Minimal install', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v1/_action/store/frw/finish',
+            url: '/api/v2/_action/store/frw/finish',
             method: 'post'
         }).as('finishCall');
 

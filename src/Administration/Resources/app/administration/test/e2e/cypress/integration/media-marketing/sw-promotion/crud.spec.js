@@ -28,7 +28,7 @@ describe('Promotion: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `/api/v*/promotion`,
+            url: '/api/v*/promotion',
             method: 'post'
         }).as('saveData');
         cy.route({
@@ -105,7 +105,7 @@ describe('Promotion: Test crud operations', () => {
         cy.contains('Login').click();
 
         // Finish order
-        cy.get('.confirm-tos .card-title').contains('Terms, conditions and cancellation policy');
+        cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
         cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
         cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
         cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
@@ -139,7 +139,7 @@ describe('Promotion: Test crud operations', () => {
         cy.get(`${page.elements.modal} .sw-listing__confirm-delete-text`).contains(
             'Are you sure you want to delete this item?'
         );
-        cy.get(`${page.elements.modal}__footer ${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
         // Verify updated product
         cy.wait('@deleteData').then((xhr) => {

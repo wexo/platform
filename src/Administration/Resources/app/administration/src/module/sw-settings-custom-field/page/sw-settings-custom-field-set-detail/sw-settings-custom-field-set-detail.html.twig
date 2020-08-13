@@ -40,6 +40,7 @@
 
                 {% block sw_settings_custom_field_set_detail_content_detail_custom_field_list %}
                     <sw-custom-field-list
+                            v-if="set.id"
                             ref="customFieldList"
                             :set="set">
                     </sw-custom-field-list>

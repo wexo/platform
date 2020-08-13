@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 
 class ProductControllerTest extends TestCase
 {
@@ -54,7 +55,7 @@ class ProductControllerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $client->request('GET', '/sales-channel-api/v1/product');
+        $client->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product');
 
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
@@ -70,7 +71,7 @@ class ProductControllerTest extends TestCase
             static::assertArrayHasKey('calculatedListingPrice', $product);
             static::assertArrayHasKey('calculatedPrices', $product);
             static::assertArrayHasKey('calculatedPrice', $product);
-            static::assertArrayHasKey('price', $product);
+            static::assertArrayNotHasKey('price', $product);
             static::assertArrayHasKey('name', $product);
             static::assertArrayHasKey('id', $product);
         }
@@ -100,14 +101,14 @@ class ProductControllerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $client->request('GET', '/sales-channel-api/v1/product/' . $productId);
+        $client->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $productId);
 
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
         $content = json_decode($client->getResponse()->getContent(), true);
 
         static::assertEquals($productId, $content['data']['id']);
-        static::assertEquals(10, $content['data']['price'][0]['gross']);
+        static::assertEquals(10, $content['data']['calculatedPrice']['totalPrice']);
         static::assertEquals('with id', $content['data']['tax']['name']);
         static::assertEquals(17, $content['data']['tax']['taxRate']);
     }
@@ -138,7 +139,7 @@ class ProductControllerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $client->request('GET', '/sales-channel-api/v1/product/' . $productId);
+        $client->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $productId);
 
         static::assertSame(404, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
     }

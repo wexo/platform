@@ -350,7 +350,10 @@ Component.register('sw-data-grid', {
         getCellClasses(column) {
             return [
                 `sw-data-grid__cell--${column.property.replace(/\./g, '-')}`,
-                `sw-data-grid__cell--align-${column.align}`
+                `sw-data-grid__cell--align-${column.align}`,
+                {
+                    'sw-data-grid__cell--multi-line': column.multiLine
+                }
             ];
         },
 
@@ -464,7 +467,6 @@ Component.register('sw-data-grid', {
         },
 
         onClickCancelInlineEdit(item) {
-            this.$emit('inline-edit-assign');
             this.revert(item);
 
             this.disableInlineEdit();

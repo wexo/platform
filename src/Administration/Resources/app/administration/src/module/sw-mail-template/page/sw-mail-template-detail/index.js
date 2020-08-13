@@ -1,7 +1,7 @@
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
@@ -96,10 +96,6 @@ Component.register('sw-mail-template-detail', {
 
         mediaColumns() {
             return this.getMediaColumns();
-        },
-
-        languageStore() {
-            return StateDeprecated.getStore('language');
         }
     },
 
@@ -163,7 +159,7 @@ Component.register('sw-mail-template-detail', {
             this.mailTemplateMedia = this.createMediaCollection();
 
             this.mailTemplate.media.forEach((mediaAssoc) => {
-                if (mediaAssoc.languageId === this.languageStore.getCurrentId()) {
+                if (mediaAssoc.languageId === Shopware.Context.api.languageId) {
                     this.mailTemplateMedia.push(mediaAssoc.media);
                 }
             });
@@ -217,7 +213,7 @@ Component.register('sw-mail-template-detail', {
                     errormsg = '<br/>Error Message: "'.concat(error.response.data.errors[0].detail).concat('"');
                 }
                 this.createNotificationError({
-                    title: this.$tc('sw-mail-template.detail.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc(
                         'sw-mail-template.detail.messageSaveError',
                         0,
@@ -233,17 +229,17 @@ Component.register('sw-mail-template-detail', {
 
         onClickTestMailTemplate() {
             const notificationTestMailSuccess = {
-                title: this.$tc('sw-mail-template.general.notificationTestMailSuccessTitle'),
+                title: this.$tc('global.default.success'),
                 message: this.$tc('sw-mail-template.general.notificationTestMailSuccessMessage')
             };
 
             const notificationTestMailError = {
-                title: this.$tc('sw-mail-template.general.notificationTestMailErrorTitle'),
+                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-mail-template.general.notificationTestMailErrorMessage')
             };
 
             const notificationTestMailErrorSalesChannel = {
-                title: this.$tc('sw-mail-template.general.notificationTestMailErrorTitle'),
+                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-mail-template.general.notificationTestMailSalesChannelErrorMessage')
             };
 
@@ -426,7 +422,7 @@ Component.register('sw-mail-template-detail', {
         createMailTemplateMediaAssoc(mediaItem) {
             const mailTemplateMedia = this.mailTemplateMediaRepository.create(Shopware.Context.api);
             mailTemplateMedia.mailTemplateId = this.mailTemplateId;
-            mailTemplateMedia.languageId = this.languageStore.getCurrentId();
+            mailTemplateMedia.languageId = Shopware.Context.api.languageId;
             mailTemplateMedia.mediaId = mediaItem.id;
             if (this.mailTemplate.media.length <= 0) {
                 mailTemplateMedia.position = 0;
@@ -463,13 +459,14 @@ Component.register('sw-mail-template-detail', {
         _checkIfMediaIsAlreadyUsed(mediaId) {
             return this.mailTemplate.media.some((mailTemplateMedia) => {
                 return mailTemplateMedia.mediaId === mediaId &&
-                    mailTemplateMedia.languageId === this.languageStore.getCurrentId();
+                    mailTemplateMedia.languageId === Shopware.Context.api.languageId;
             });
         },
 
         onAddItemToAttachment(mediaItem) {
             if (this._checkIfMediaIsAlreadyUsed(mediaItem.id)) {
                 this.createNotificationInfo({
+                    title: this.$tc('global.default.info'),
                     message: this.$tc('sw-mail-template.list.errorMediaItemDuplicated')
                 });
                 return false;

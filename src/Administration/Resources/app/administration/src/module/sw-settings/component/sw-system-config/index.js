@@ -93,6 +93,11 @@ Component.register('sw-system-config', {
                 return Promise.resolve();
             }
 
+            return this.loadCurrentSalesChannelConfig();
+        },
+        loadCurrentSalesChannelConfig() {
+            this.isLoading = true;
+
             return this.systemConfigApiService.getValues(this.domain, this.currentSalesChannelId)
                 .then(values => {
                     this.$set(this.actualConfigData, this.currentSalesChannelId, values);
@@ -121,7 +126,7 @@ Component.register('sw-system-config', {
             message += '</ul>';
 
             this.createNotificationError({
-                title: this.$tc('sw-config-form-renderer.configLoadErrorTitle'),
+                title: this.$tc('global.default.error'),
                 message: message,
                 autoClose: false
             });

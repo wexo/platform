@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Framework\Update\Api;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -29,6 +27,7 @@ use Shopware\Core\Framework\Update\Struct\Version;
 use Shopware\Core\Framework\Update\VersionFactory;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -222,7 +221,7 @@ class UpdateController extends AbstractController
             $this->systemConfig->set(self::UPDATE_TOKEN_KEY, $updateToken);
 
             return new JsonResponse([
-                'redirectTo' => $request->getBaseUrl() . '/api/v1/_action/update/finish/' . $this->systemConfig->get(self::UPDATE_TOKEN_KEY),
+                'redirectTo' => $request->getBaseUrl() . '/api/v' . PlatformRequest::API_VERSION . ' /_action/update/finish/' . $this->systemConfig->get(self::UPDATE_TOKEN_KEY),
             ]);
         }
 
@@ -357,20 +356,6 @@ class UpdateController extends AbstractController
 
         $classLoad = $kernel->getPluginLoader()->getClassLoader();
         $kernel->reboot(null, new StaticKernelPluginLoader($classLoad));
-
-        return $kernel->getContainer();
-    }
-
-    private function rebootWithPlugins(): ContainerInterface
-    {
-        /** @var Kernel $kernel */
-        $kernel = $this->container->get('kernel');
-
-        $classLoad = $kernel->getPluginLoader()->getClassLoader();
-
-        $pluginLoader = new DbalKernelPluginLoader($classLoad, null, $this->container->get(Connection::class));
-
-        $kernel->reboot(null, $pluginLoader);
 
         return $kernel->getContainer();
     }

@@ -111,6 +111,10 @@ class MailService implements MailServiceInterface
         $mailBeforeValidateEvent = new MailBeforeValidateEvent($data, $context, $templateData);
         $this->eventDispatcher->dispatch($mailBeforeValidateEvent);
 
+        if ($mailBeforeValidateEvent->isPropagationStopped()) {
+            return null;
+        }
+
         $definition = $this->getValidationDefinition($context);
         $this->dataValidator->validate($data, $definition);
 
@@ -208,10 +212,8 @@ class MailService implements MailServiceInterface
      * @return array e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
      *
      * @internal
-     *
-     * @deprecated tag:v6.3.0 will be private in 6.3.0
      */
-    public function buildContents(array $data, ?SalesChannelEntity $salesChannel): array
+    private function buildContents(array $data, ?SalesChannelEntity $salesChannel): array
     {
         if ($salesChannel && $mailHeaderFooter = $salesChannel->getMailHeaderFooter()) {
             return [

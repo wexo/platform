@@ -1,8 +1,12 @@
+import template from './sw-settings-custom-field-set-create.html.twig';
+import './sw-settings-custom-field-set-create.scss';
+
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
 Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-field-set-detail', {
+    template,
 
     beforeRouteEnter(to, from, next) {
         if (to.name.includes('sw.settings.custom.field.create') && !to.params.id) {
@@ -39,7 +43,7 @@ Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-fiel
             });
         },
         createNameNotUniqueNotification() {
-            const titleSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.titleNameNotUnique');
+            const titleSaveSuccess = this.$tc('global.default.success');
             const messageSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.messageNameNotUnique');
 
             this.createNotificationError({
