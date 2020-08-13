@@ -11,6 +11,20 @@ $box-image-height-img: 332px;
     height: 100%;
 }
 
+.product-variant-characteristics {
+    min-height: 3em;
+
+    .product-variant-characteristics-text {
+        @include truncate-multiline(1.5em, 2, $sw-background-color);
+
+        font-size: $font-size-sm;
+    }
+
+    .product-variant-characteristics-option {
+        font-weight: $font-weight-bold;
+    }
+}
+
 .product-image-wrapper {
     height: $box-standard-height-img;
     flex-grow: 1;

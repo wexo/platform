@@ -107,20 +107,33 @@ class CartServiceTest extends TestCase
     {
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
-
-        $dispatcher->addListener(LineItemAddedEvent::class, $listener);
+        $isMerged = null;
+        $dispatcher->addListener(LineItemAddedEvent::class, static function (LineItemAddedEvent $addedEvent) use (&$isMerged): void {
+            $isMerged = $addedEvent->isMerged();
+        });
 
         $cartService = $this->getContainer()->get(CartService::class);
 
         $context = $this->getSalesChannelContext();
 
+        $cartId = Uuid::randomHex();
+        $cart = $cartService->getCart($cartId, $context);
         $cartService->add(
-            $cartService->getCart(Uuid::randomHex(), $context),
+            $cart,
+            (new LineItem('test', 'test'))->setStackable(true),
+            $context
+        );
+
+        static::assertNotNull($isMerged);
+        static::assertFalse($isMerged);
+
+        $cartService->add(
+            $cart,
             new LineItem('test', 'test'),
             $context
         );
+
+        static::assertTrue($isMerged);
     }
 
     public function testLineItemRemovedEventFired(): void
@@ -266,6 +279,18 @@ class CartServiceTest extends TestCase
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
     }
 
+    public function testCartCreatedWithGivenToken(): void
+    {
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $token = Uuid::randomHex();
+        $cartService = $this->getContainer()->get(CartService::class);
+        $cart = $cartService->getCart($token, $context);
+
+        static::assertSame($token, $cart->getToken());
+    }
+
     private function createCustomer(string $addressId, string $mail, string $password, Context $context): void
     {
         $this->connection->executeUpdate('DELETE FROM customer WHERE email = :mail', [
@@ -309,16 +334,22 @@ class CartServiceTest extends TestCase
         /** @var EntityRepositoryInterface $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
-        $data = [
-            'id' => Defaults::SALES_CHANNEL,
-            'domains' => [[
-                'languageId' => $languageId,
-                'currencyId' => Defaults::CURRENCY,
-                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                'url' => $domain,
-            ]],
-        ];
+        try {
+            $data = [
+                'id' => Defaults::SALES_CHANNEL,
+                'domains' => [
+                    [
+                        'languageId' => $languageId,
+                        'currencyId' => Defaults::CURRENCY,
+                        'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                        'url' => $domain,
+                    ],
+                ],
+            ];
 
-        $salesChannelRepository->update([$data], $context);
+            $salesChannelRepository->update([$data], $context);
+        } catch (\Exception $e) {
+            //ignore if domain already exists
+        }
     }
 }

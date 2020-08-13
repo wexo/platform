@@ -80,8 +80,9 @@ Component.register('sw-property-detail', {
 
         defaultCriteria() {
             const criteria = new Criteria(this.page, this.limit);
-
+            criteria.addAssociation('options');
             criteria.setTerm(this.term);
+
             return criteria;
         },
 
@@ -137,7 +138,7 @@ Component.register('sw-property-detail', {
                 this.isSaveSuccessful = true;
             }).catch((exception) => {
                 this.createNotificationError({
-                    title: this.$tc('sw-property.detail.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-property.detail.messageSaveError')
                 });
                 this.isLoading = false;

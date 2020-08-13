@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\DataMappingEvent;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
@@ -25,7 +26,6 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\Framework\Validation\ValidationServiceInterface;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -39,6 +39,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @RouteScope(scopes={"store-api"})
+ * @ContextTokenRequired()
  */
 class RegisterRoute extends AbstractRegisterRoute
 {
@@ -58,7 +59,7 @@ class RegisterRoute extends AbstractRegisterRoute
     private $numberRangeValueGenerator;
 
     /**
-     * @var ValidationServiceInterface|DataValidationFactoryInterface
+     * @var DataValidationFactoryInterface
      */
     private $addressValidationFactory;
 
@@ -68,7 +69,7 @@ class RegisterRoute extends AbstractRegisterRoute
     private $validator;
 
     /**
-     * @var ValidationServiceInterface|DataValidationFactoryInterface
+     * @var DataValidationFactoryInterface
      */
     private $accountValidationFactory;
 
@@ -77,16 +78,12 @@ class RegisterRoute extends AbstractRegisterRoute
      */
     private $systemConfigService;
 
-    /**
-     * @param ValidationServiceInterface|DataValidationFactoryInterface $accountValidationFactory
-     * @param ValidationServiceInterface|DataValidationFactoryInterface $addressValidationFactory
-     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         DataValidator $validator,
-        $accountValidationFactory,
-        $addressValidationFactory,
+        DataValidationFactoryInterface $accountValidationFactory,
+        DataValidationFactoryInterface $addressValidationFactory,
         SystemConfigService $systemConfigService,
         EntityRepositoryInterface $customerRepository
     ) {
@@ -342,11 +339,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private function getCreateAddressValidationDefinition(string $accountType, bool $isBillingAddress, SalesChannelContext $context): DataValidationDefinition
     {
-        if ($this->addressValidationFactory instanceof DataValidationFactoryInterface) {
-            $validation = $this->addressValidationFactory->create($context);
-        } else {
-            $validation = $this->addressValidationFactory->buildCreateValidation($context->getContext());
-        }
+        $validation = $this->addressValidationFactory->create($context);
 
         if ($isBillingAddress
             && $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
@@ -362,11 +355,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private function getCustomerCreateValidationDefinition(bool $isGuest, SalesChannelContext $context): DataValidationDefinition
     {
-        if ($this->addressValidationFactory instanceof DataValidationFactoryInterface) {
-            $validation = $this->accountValidationFactory->create($context);
-        } else {
-            $validation = $this->accountValidationFactory->buildCreateValidation($context->getContext());
-        }
+        $validation = $this->accountValidationFactory->create($context);
 
         if (!$isGuest) {
             $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannel()->getId());

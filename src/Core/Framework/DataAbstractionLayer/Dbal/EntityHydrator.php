@@ -198,8 +198,12 @@ class EntityHydrator
                 $decoded = $typedField->getSerializer()->decode($typedField, $value);
                 $entity->addTranslated($propertyName, $decoded);
 
+                $inherited = $definition->isInheritanceAware() && $context->considerInheritance();
+                $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
+
                 // assign translated value of the first language
-                $key = $root . '.translation.' . $propertyName;
+                $key = array_shift($chain) . '.' . $propertyName;
+
                 $decoded = $typedField->getSerializer()->decode($typedField, $row[$key]);
                 $entity->assign([$propertyName => $decoded]);
 
@@ -221,25 +225,6 @@ class EntityHydrator
         }
 
         return $entity;
-    }
-
-    /**
-     * @param string[] $jsonStrings
-     */
-    private function mergeJson(array $jsonStrings): string
-    {
-        $merged = [];
-        foreach ($jsonStrings as $string) {
-            $decoded = json_decode((string) $string, true);
-            if (!$decoded) {
-                continue;
-            }
-            foreach ($decoded as $key => $value) {
-                $merged[$key] = $value;
-            }
-        }
-
-        return json_encode($merged, JSON_PRESERVE_ZERO_FRACTION);
     }
 
     private function extractManyToManyIds(string $root, ManyToManyAssociationField $field, array $row): ?array
@@ -296,16 +281,17 @@ class EntityHydrator
 
         $value = $row[$key];
 
+        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
+
         if ($field instanceof TranslatedField) {
-            $key = $root . '.translation.' . $propertyName;
+            $key = $chain[0] . '.' . $propertyName;
             $decoded = $customField->getSerializer()->decode($customField, $row[$key]);
+
             $entity->assign([$propertyName => $decoded]);
 
-            $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
-
             $values = [];
-            foreach ($chain as $part) {
-                $key = $part['alias'] . '.' . $propertyName;
+            foreach ($chain as $accessor) {
+                $key = $accessor . '.' . $propertyName;
                 $values[] = $row[$key] ?? null;
             }
 
@@ -318,7 +304,12 @@ class EntityHydrator
              * In other terms: The first argument has the lowest 'priority', so we need to reverse the array
              */
             $merged = $this->mergeJson(\array_reverse($values, false));
-            $entity->addTranslated($propertyName, $customField->getSerializer()->decode($customField, $merged));
+            $decoded = $customField->getSerializer()->decode($customField, $merged);
+            $entity->addTranslated($propertyName, $decoded);
+
+            if ($inherited) {
+                $entity->assign([$propertyName => $decoded]);
+            }
 
             return;
         }
@@ -348,5 +339,30 @@ class EntityHydrator
         $merged = $customField->getSerializer()->decode($customField, $mergedJson);
 
         $entity->assign([$propertyName => $merged]);
+    }
+
+    /**
+     * @param string[] $jsonStrings
+     */
+    private function mergeJson(array $jsonStrings): string
+    {
+        $merged = [];
+        foreach ($jsonStrings as $string) {
+            $decoded = json_decode((string) $string, true);
+
+            if (!$decoded) {
+                continue;
+            }
+
+            foreach ($decoded as $key => $value) {
+                if ($value === null) {
+                    continue;
+                }
+
+                $merged[$key] = $value;
+            }
+        }
+
+        return json_encode($merged, JSON_PRESERVE_ZERO_FRACTION);
     }
 }

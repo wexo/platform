@@ -237,6 +237,11 @@ class SalesChannelContext extends Struct
         $this->context->setTaxState($taxState);
     }
 
+    public function getTaxCalculationType(): string
+    {
+        return $this->getSalesChannel()->getTaxCalculationType();
+    }
+
     public function getPermissions(): array
     {
         return $this->permissions;
@@ -251,13 +256,13 @@ class SalesChannelContext extends Struct
         $this->permissions = array_filter($permissions);
     }
 
-    public function hasPermission(string $permission): bool
-    {
-        return $this->permissions[$permission] ?? false;
-    }
-
     public function getApiAlias(): string
     {
         return 'sales_channel_context';
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        return $this->permissions[$permission] ?? false;
     }
 }

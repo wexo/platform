@@ -18,7 +18,7 @@ use Shopware\Core\Checkout\Document\FileGenerator\PdfGenerator;
 use Shopware\Core\Checkout\Document\GeneratedDocument;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
-use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
+use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
@@ -263,7 +263,14 @@ class InvoiceServiceTest extends TestCase
             'prices' => [
                 [
                     'name' => 'Std',
-                    'price' => '10.00',
+                    'currencyPrice' => [
+                        [
+                            'currencyId' => Defaults::CURRENCY,
+                            'net' => 10.00,
+                            'gross' => 10.00,
+                            'linked' => false,
+                        ],
+                    ],
                     'currencyId' => Defaults::CURRENCY,
                     'calculation' => 1,
                     'quantityStart' => 1,

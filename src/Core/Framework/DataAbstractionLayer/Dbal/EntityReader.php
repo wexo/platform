@@ -268,12 +268,6 @@ class EntityReader implements EntityReaderInterface
             }
         }
 
-        $translationDefinition = $definition->getTranslationDefinition();
-
-        if ($translationDefinition === null) {
-            return;
-        }
-
         $this->queryHelper->addTranslationSelect($root, $definition, $query, $context);
     }
 

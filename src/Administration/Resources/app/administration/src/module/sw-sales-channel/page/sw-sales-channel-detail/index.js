@@ -1,7 +1,6 @@
 import template from './sw-sales-channel-detail.html.twig';
-import swSalesChannelState from '../../state/salesChannel.store';
 
-const { Component, Mixin, Context, Defaults, Utils, State } = Shopware;
+const { Component, Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-detail', {
@@ -9,7 +8,8 @@ Component.register('sw-sales-channel-detail', {
 
     inject: [
         'repositoryFactory',
-        'exportTemplateService'
+        'exportTemplateService',
+        'acl'
     ],
 
     mixins: [
@@ -67,21 +67,6 @@ Component.register('sw-sales-channel-detail', {
             return this.productComparison.newProductExport;
         },
 
-        googleShopping() {
-            if (this.salesChannel && this.salesChannel.productExports.first()) {
-                return this.salesChannel.productExports.first();
-            }
-
-            this.productComparison.newProductExport.encoding = 'UTF-8';
-            this.productComparison.newProductExport.fileFormat = 'xml';
-            this.productComparison.newProductExport.fileName = Utils.createId();
-            this.productComparison.newProductExport.interval = 0;
-            this.productComparison.newProductExport.generateByCronjob = false;
-            this.productComparison.newProductExport.accessKey = this.salesChannel.accessKey;
-
-            return this.productComparison.newProductExport;
-        },
-
         isStoreFront() {
             if (!this.salesChannel) {
                 return this.$route.params.typeId === Defaults.storefrontSalesChannelTypeId;
@@ -96,14 +81,6 @@ Component.register('sw-sales-channel-detail', {
             }
 
             return this.salesChannel.typeId === Defaults.productComparisonTypeId;
-        },
-
-        isGoogleShopping() {
-            if (!this.salesChannel) {
-                return this.$route.params.typeId === Defaults.googleShoppingTypeId;
-            }
-
-            return this.salesChannel.typeId === Defaults.googleShoppingTypeId;
         },
 
         salesChannelRepository() {
@@ -125,25 +102,29 @@ Component.register('sw-sales-channel-detail', {
         },
 
         tooltipSave() {
+            if (!this.allowSaving) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.allowSaving,
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {
                 message: `${systemKey} + S`,
                 appearance: 'light'
             };
-        }
-    },
+        },
 
-    beforeCreate() {
-        State.registerModule('swSalesChannel', swSalesChannelState);
+        allowSaving() {
+            return this.acl.can('sales_channel.editor');
+        }
     },
 
     created() {
         this.createdComponent();
-    },
-
-    beforeDestroy() {
-        this.beforeDestroyComponent();
     },
 
     watch: {
@@ -156,10 +137,6 @@ Component.register('sw-sales-channel-detail', {
         createdComponent() {
             this.loadEntityData();
             this.loadProductExportTemplates();
-        },
-
-        beforeDestroyComponent() {
-            State.unregisterModule('swSalesChannel');
         },
 
         loadEntityData() {
@@ -248,7 +225,7 @@ Component.register('sw-sales-channel-detail', {
             this.onTemplateModalClose();
 
             this.createNotificationInfo({
-                title: this.$tc('sw-sales-channel.detail.productComparison.templates.message.template-applied-title'),
+                title: this.$tc('global.default.info'),
                 message: this.$tc('sw-sales-channel.detail.productComparison.templates.message.template-applied-message')
             });
         },
@@ -301,11 +278,6 @@ Component.register('sw-sales-channel-detail', {
                 this.salesChannel.productExports.add(this.productExport);
             }
 
-            if (this.isGoogleShopping && !this.salesChannel.productExports.length) {
-                this.salesChannel.productExports.add(this.googleShopping);
-            }
-
-
             this.salesChannelRepository
                 .save(this.salesChannel, Context.api)
                 .then(() => {
@@ -318,7 +290,7 @@ Component.register('sw-sales-channel-detail', {
                     this.isLoading = false;
 
                     this.createNotificationError({
-                        title: this.$tc('sw-sales-channel.detail.titleSaveError'),
+                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-sales-channel.detail.messageSaveError', 0, {
                             name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name')
                         })

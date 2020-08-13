@@ -65,20 +65,20 @@ Component.register('sw-settings-payment-list', {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
+            Shopware.State.commit('context/setApiLanguageId', languageId);
             this.getList();
         },
 
         onInlineEditSave(promise, payment) {
             promise.then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-payment.detail.titleSaveSuccess'),
+                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-settings-payment.detail.messageSaveSuccess', 0, { name: payment.name })
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-payment.detail.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-payment.detail.messageSaveError')
                 });
             });

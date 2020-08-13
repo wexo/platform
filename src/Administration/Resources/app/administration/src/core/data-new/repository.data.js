@@ -112,16 +112,16 @@ export default class Repository {
      *
      * @param {String} entityId
      * @param {Object} context
-     * @param {Object} overwrites
+     * @param {Object} behavior
      * @returns {Promise<T>}
      */
-    clone(entityId, context, overwrites) {
+    clone(entityId, context, behavior) {
         if (!entityId) {
             return Promise.reject(new Error('Missing required argument: id'));
         }
 
         return this.httpClient
-            .post(`/_action/clone${this.route}/${entityId}`, { overwrites }, {
+            .post(`/_action/clone${this.route}/${entityId}`, behavior, {
                 headers: this.buildHeaders(context),
                 version: this.options.version
             })
@@ -500,6 +500,14 @@ export default class Repository {
                 headers
             );
         }
+
+        if (context.currencyId) {
+            headers = Object.assign(
+                { 'sw-currency-id': context.currencyId },
+                headers
+            );
+        }
+
         if (context.versionId) {
             headers = Object.assign(
                 { 'sw-version-id': context.versionId },

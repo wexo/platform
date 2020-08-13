@@ -58,13 +58,13 @@ Component.register('sw-settings-tax-list', {
         onInlineEditSave(promise, tax) {
             promise.then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-tax.detail.titleSaveSuccess'),
+                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', 0, { name: tax.name })
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-tax.detail.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-tax.detail.messageSaveError')
                 });
             });
@@ -96,7 +96,7 @@ Component.register('sw-settings-tax-list', {
                 width: '250px',
                 primary: true
             }, {
-                property: 'defaultTaxRate',
+                property: 'taxRate',
                 inlineEdit: 'number',
                 label: 'sw-settings-tax.list.columnDefaultTaxRate'
             }];

@@ -154,9 +154,7 @@ Component.register('sw-settings-shipping-detail', {
     methods: {
         createdComponent() {
             if (!this.shippingMethodId) {
-                Shopware.StateDeprecated.getStore('language').setCurrentId(
-                    Shopware.StateDeprecated.getStore('language').systemLanguageId
-                );
+                Shopware.State.commit('context/resetLanguageToDefault');
 
                 const shippingMethod = this.shippingMethodRepository.create(Shopware.Context.api);
                 Shopware.State.commit('swShippingDetail/setShippingMethod', shippingMethod);
@@ -204,10 +202,9 @@ Component.register('sw-settings-shipping-detail', {
         },
 
         onSave() {
-            const shippingMethodName = this.shippingMethod.name || this.placeholder(this.shippingMethod, 'name');
             const titleSaveError = this.$tc('global.default.error');
             const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessage', 0, { entityName: shippingMethodName }
+                'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
             );
 
             this.filterIncompletePrices();

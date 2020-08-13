@@ -3,7 +3,13 @@
 
         {% block sw_product_detail_header %}
             <template slot="smart-bar-header">
-                <h2>{{ productTitle }}</h2>
+                <h2>
+                    <sw-product-variant-info
+                        :variations="product.variation"
+                        :titleTerm="productTitle">
+                        {{ productTitle }}
+                    </sw-product-variant-info>
+                </h2>
             </template>
         {% endblock %}
 
@@ -23,10 +29,10 @@
                             class="sw-product-detail__save-action"
                             :isLoading="isLoading"
                             :processSuccess="isSaveSuccessful"
-                            :disabled="isLoading"
                             variant="primary"
                             @process-finish="saveFinish"
                             v-tooltip.bottom="tooltipSave"
+                            :disabled="isLoading || !acl.can('product.editor')"
                             @click.prevent="onSave">
                             {{ $tc('sw-product.detail.buttonSave') }}
                         </sw-button-process>
@@ -48,8 +54,12 @@
                             {% block sw_product_detail_actions_duplicate %}
                                 <sw-context-menu-item
                                     class="sw-product-detail__save-duplicate-action"
-                                    :disabled="product.childCount > 0"
-                                    :title="duplicationDisabledTitle"
+                                    :disabled="!acl.can('product.creator') || !acl.can('product.editor') || product.parentId != null"
+                                    v-tooltip="{
+                                        message: $tc('sw-privileges.tooltip.warning'),
+                                        disabled: acl.can('product.creator') || acl.can('product.editor'),
+                                        showOnDisabledElements: true
+                                    }"
                                     @click="onDuplicate">
                                     {{ $tc('sw-product.detail.buttonSaveDuplicate') }}
                                 </sw-context-menu-item>
@@ -137,6 +147,7 @@
                                 v-if="!isChild"
                                 class="sw-product-detail__tab-cross-selling"
                                 :route="{ name: 'sw.product.detail.crossSelling', params: { id: $route.params.id } }"
+                                :hasError="swProductDetailCrossSellingError"
                                 :title="$tc('sw-product.detail.tabCrossSelling')">
                                 {{ $tc('sw-product.detail.tabCrossSelling') }}
                             </sw-tabs-item>
@@ -146,6 +157,10 @@
 
                 {% block sw_product_detail_content_view %}
                     <router-view @media-drop="onAddItemToProduct" @cover-change="onCoverChange"></router-view>
+                {% endblock %}
+
+                {% block sw_product_detail_content_clone_modal %}
+                    <sw-product-clone-modal :product="product" v-if="cloning" @clone-finish="onDuplicateFinish"></sw-product-clone-modal>
                 {% endblock %}
             </sw-card-view>
         {% endblock %}

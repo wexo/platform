@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\UserDefinition;
-use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,12 +34,19 @@ class UserController extends AbstractController
      */
     private $userDefinition;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $keyRepository;
+
     public function __construct(
         EntityRepositoryInterface $userRepository,
+        EntityRepositoryInterface $keyRepository,
         UserDefinition $userDefinition
     ) {
         $this->userRepository = $userRepository;
         $this->userDefinition = $userDefinition;
+        $this->keyRepository = $keyRepository;
     }
 
     /**
@@ -54,8 +60,10 @@ class UserController extends AbstractController
 
         $userId = $context->getSource()->getUserId();
 
-        /** @var UserEntity|null $user */
-        $user = $this->userRepository->search(new Criteria([$userId]), $context)->first();
+        $criteria = new Criteria([$userId]);
+        $criteria->addAssociation('aclRoles');
+
+        $user = $this->userRepository->search($criteria, $context)->first();
         if (!$user) {
             throw OAuthServerException::invalidCredentials();
         }
@@ -99,6 +107,22 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Route("/api/v{version}/user/{userId}/access-keys/{id}", name="api.user_access_keys.delete", defaults={"auth_required"=true}, methods={"DELETE"})
+     */
+    public function deleteUserAccessKey(string $id, Request $request, Context $context, ResponseFactoryInterface $factory): Response
+    {
+        if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
+            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
+        }
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($id): void {
+            $this->keyRepository->delete([['id' => $id]], $context);
+        });
+
+        return $factory->createRedirectResponse($this->keyRepository->getDefinition(), $id, $request, $context);
+    }
+
+    /**
      * @Route("/api/v{version}/user", name="api.user.create", defaults={"auth_required"=true}, methods={"POST"})
      * @Route("/api/v{version}/user/{userId}", name="api.user.update", defaults={"auth_required"=true}, methods={"PATCH"})
      */
@@ -109,7 +133,10 @@ class UserController extends AbstractController
         }
 
         $data = $request->request->all();
-        $data['id'] = $userId ?? null;
+
+        if (!isset($data['id'])) {
+            $data['id'] = $userId ?? null;
+        }
 
         $events = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data) {
             return $this->userRepository->upsert([$data], $context);

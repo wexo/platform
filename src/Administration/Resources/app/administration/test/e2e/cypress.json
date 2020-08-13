@@ -2,10 +2,9 @@
   "viewportHeight": 1080,
   "viewportWidth": 1920,
   "baseUrl": "http://localhost:8000",
-  "watchForFileChanges": false,
   "requestTimeout": 30000,
   "responseTimeout": 60000,
-  "defaultCommandTimeout": 10000,
+  "defaultCommandTimeout": 30000,
   "salesChannelName": "Storefront",
   "useDarkTheme": false,
   "video": false,
@@ -17,7 +16,7 @@
     "configFile": "reporter-config.json"
   },
   "env": {
-    "apiVersion": "v1",
+    "apiVersion": "v2",
     "user": "admin",
     "pass": "shopware",
     "salesChannelName": "Storefront",

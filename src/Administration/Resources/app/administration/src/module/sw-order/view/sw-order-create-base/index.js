@@ -205,7 +205,7 @@ Component.register('sw-order-create-base', {
                 await this.updateCustomerContext();
             } catch {
                 this.createNotificationError({
-                    title: this.$tc('sw-order.create.titleFetchError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-order.create.messageSwitchCustomerError')
                 });
             } finally {
@@ -326,8 +326,9 @@ Component.register('sw-order-create-base', {
                     lineItemKeys.forEach(key => {
                         const removedTag = this.promotionCodeTags.find(tag => tag.discountId === key);
                         if (removedTag) {
-                            this.promotionCodeTags = this.promotionCodeTags
-                                .filter(item => item.discountId !== removedTag.discountId);
+                            this.promotionCodeTags = this.promotionCodeTags.filter(item => {
+                                return item.discountId !== removedTag.discountId;
+                            });
                         }
                     });
                 })
@@ -431,7 +432,7 @@ Component.register('sw-order-create-base', {
 
         enableAutomaticPromotions() {
             this.updateLoading(true);
-            Service('cartSalesChannelService').enableAutomaticPromotions(this.cart.token).then(() => {
+            Service('cartStoreService').enableAutomaticPromotions(this.cart.token).then(() => {
                 this.loadCart();
             });
         },

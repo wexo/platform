@@ -105,11 +105,8 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         return new SetPaymentOrderRouteResponse();
     }
 
-    public function setPaymentMethod(
-        string $paymentMethodId,
-        string $orderId,
-        SalesChannelContext $salesChannelContext
-    ): void {
+    private function setPaymentMethod(string $paymentMethodId, string $orderId, SalesChannelContext $salesChannelContext): void
+    {
         $context = $salesChannelContext->getContext();
         $initialState = $this->stateMachineRegistry->getInitialState(
             OrderTransactionStates::STATE_MACHINE,

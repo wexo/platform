@@ -154,10 +154,10 @@ Component.register('sw-customer-detail', {
                 this.customer.birthday = null;
             }
 
-            if (! await this.validPassword(this.customer)) {
+            if (!await this.validPassword(this.customer)) {
                 this.isLoading = false;
                 return false;
-            } else if (this.customer.passwordNew) {
+            } if (this.customer.passwordNew) {
                 this.customer.password = this.customer.passwordNew;
             }
 
@@ -166,14 +166,14 @@ Component.register('sw-customer-detail', {
                 this.isSaveSuccessful = true;
                 this.createdComponent();
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-customer.detail.titleSaveSuccess'),
-                    message: this.$tc('sw-customer.detail.messageSaveSuccess',  0, {
-                        name: this.customer.firstName + ' ' + this.customer.lastName
+                    title: this.$tc('global.default.success'),
+                    message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, {
+                        name: `${this.customer.firstName} ${this.customer.lastName}`
                     })
                 });
             }).catch((exception) => {
                 this.createNotificationError({
-                    title: this.$tc('sw-customer.detail.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-customer.detail.messageSaveError')
                 });
                 this.isLoading = false;
@@ -201,14 +201,14 @@ Component.register('sw-customer-detail', {
             if (passwordSet) {
                 if (passwordNotEquals) {
                     this.createNotificationError({
-                        title: this.$tc('sw-customer.detail.titleSaveError'),
+                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-customer.detail.notificationPasswordErrorMessage')
                     });
 
                     return false;
-                } else if (invalidLength) {
+                } if (invalidLength) {
                     this.createNotificationError({
-                        title: this.$tc('sw-customer.detail.titleSaveError'),
+                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-customer.detail.notificationPasswordLengthErrorMessage')
                     });
 
@@ -217,6 +217,6 @@ Component.register('sw-customer-detail', {
             }
 
             return true;
-        },
+        }
     }
 });

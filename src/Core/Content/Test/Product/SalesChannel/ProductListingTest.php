@@ -5,13 +5,14 @@ namespace Shopware\Core\Content\Test\Product\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Test\Product\SalesChannel\Fixture\ListingTestData;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,11 +22,6 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductListingTest extends TestCase
 {
     use IntegrationTestBehaviour;
-
-    /**
-     * @var ProductListingGateway
-     */
-    private $listingGateway;
 
     /**
      * @var string
@@ -40,8 +36,6 @@ class ProductListingTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->listingGateway = $this->getContainer()->get(ProductListingGateway::class);
 
         $parent = $this->getContainer()->get(Connection::class)->fetchColumn(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
@@ -67,11 +61,10 @@ class ProductListingTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
-        $request->attributes->set('_route_params', [
-            'navigationId' => $this->categoryId,
-        ]);
-
-        $listing = $this->listingGateway->search($request, $context);
+        $listing = $this->getContainer()
+            ->get(ProductListingRoute::class)
+            ->load($this->categoryId, $request, $context, new Criteria())
+            ->getResult();
 
         static::assertSame(10, $listing->getTotal());
         static::assertFalse($listing->has($this->testData->getId('product1')));
@@ -157,7 +150,10 @@ class ProductListingTest extends TestCase
             'navigationId' => $this->categoryId,
         ]);
 
-        $listing = $this->listingGateway->search($request, $context);
+        $listing = $this->getContainer()
+            ->get(ProductListingRoute::class)
+            ->load($this->categoryId, $request, $context, new Criteria())
+            ->getResult();
 
         /** @var EntityResult $result */
         $result = $listing->getAggregations()->get('properties');

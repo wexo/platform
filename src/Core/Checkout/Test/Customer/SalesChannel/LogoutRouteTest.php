@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
+use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 
 class LogoutRouteTest extends TestCase
 {
@@ -39,7 +40,7 @@ class LogoutRouteTest extends TestCase
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
-
+        $this->assignSalesChannelContext($this->browser);
         $this->customerRepository = $this->getContainer()->get('customer.repository');
     }
 
@@ -48,7 +49,7 @@ class LogoutRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/logout',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/logout',
                 [
                 ]
             );
@@ -68,7 +69,7 @@ class LogoutRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/login',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
                 [
                     'email' => $email,
                     'password' => $password,
@@ -83,21 +84,19 @@ class LogoutRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/logout',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/logout',
                 [],
                 [],
                 [
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
-        static::assertIsArray($response);
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(204, $this->browser->getResponse()->getStatusCode());
 
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/customer',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer',
                 [],
                 [],
                 [

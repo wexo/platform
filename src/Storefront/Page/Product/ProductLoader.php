@@ -58,6 +58,7 @@ class ProductLoader
             ->addAssociation('manufacturer')
             ->addAssociation('manufacturer.media')
             ->addAssociation('cover')
+            ->addAssociation('options.group')
             ->addAssociation('properties.group')
             ->addAssociation('mainCategories.category');
 

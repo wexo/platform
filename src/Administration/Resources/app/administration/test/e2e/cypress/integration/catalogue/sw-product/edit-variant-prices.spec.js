@@ -77,5 +77,4 @@ describe('Product: Test variants', () => {
         cy.get('.is--inline-edit .sw-data-grid__cell--price-EUR .sw-inheritance-switch').click();
         cy.pause();
     });
-
 });
