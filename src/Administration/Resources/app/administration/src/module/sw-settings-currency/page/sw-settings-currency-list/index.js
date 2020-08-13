@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-currency-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -64,20 +64,20 @@ Component.register('sw-settings-currency-list', {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
+            Shopware.State.commit('context/setApiLanguageId', languageId);
             this.getList();
         },
 
         onInlineEditSave(promise, currency) {
             promise.then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-currency.detail.titleSaveSuccess'),
+                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-settings-currency.detail.messageSaveSuccess', 0, { name: currency.name })
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-currency.detail.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-currency.detail.messageSaveError')
                 });
             });

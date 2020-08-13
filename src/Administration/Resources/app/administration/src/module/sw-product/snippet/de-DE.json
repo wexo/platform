@@ -19,8 +19,9 @@
       "inheritanceModuleName": "Dieses Produkt",
       "backToParent": "zurück zur Variantenübersicht",
       "copy": "Kopie",
-      "variantDuplication": "Die Duplizierung von Varianten wird derzeit nicht unterstützt."
-
+      "cloneSuffix": "Varianten",
+      "cloneNotice": "Die Produktvarianten werden dupliziert. Sollte dieser Prozess unterbrochen werden, kann es sein, dass nicht alle Varianten vollständig dupliziert werden. In diesem Fall kannst Du die Varianten im neuen Produkt erneut generieren.",
+      "cloneTitle": "Varianten duplizieren"
     },
     "basicForm": {
       "labelTitle": "Titel",
@@ -170,16 +171,14 @@
       "columnActive": "Aktiv",
       "columnPrice": "Preis",
       "columnInStock": "Lagerbestand",
-      "columnAvailableStock": "Noch verfügbar",
+      "columnAvailableStock": "Verfügbar",
       "columnActions": "Aktion(en)",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
       "contextMenuDuplicate": "Duplizieren",
       "messageEmpty": "Noch keine Produkte",
-      "modalTitleDelete": "Produkte",
       "textDeleteConfirm": "Möchtest Du das Produkt \"{name}\" wirklich löschen? | Möchtest Du diese {count} Produkte wirklich löschen?",
       "titleSidebarItemRefresh": "Aktualisieren",
-      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert."
     },
     "detail": {
@@ -193,11 +192,9 @@
       "tabProperties": "Eigenschaften zuweisen",
       "tabVariation": "Varianten",
       "tabCrossSelling": "Cross Selling",
-      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert.",
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert.",
-      "titleSaveWarning": "Keine Änderung",
-      "messageSaveWarning": "Sie haben keine Änderung vorgenommen."
+      "messageSaveWarning": "Keine Änderung vorgenommen."
     },
     "mediaForm": {
       "errorHeadline": "Fehler",
@@ -251,9 +248,6 @@
       "generatedListDeleteModalMessage": "Möchtest Du die Variante löschen?",
       "generatedListDeleteModalButtonCancel": "Abbrechen",
       "generatedListDeleteModalButtonDelete": "Löschen",
-      "generatedListDeleteModalTitle": "Variante",
-      "generatedListTitleSaveSuccess": "Gespeichert",
-      "generatedListTitleSaveError": "Fehler",
       "generatedListMessageSaveSuccess": "Die Variante wurde gespeichert.",
       "generatedListMessageSaveError": "Die Variante konnte nicht gespeichert werden.",
       "generatedListTitleDeleteError": "Gelöscht",
@@ -336,6 +330,22 @@
       "emptyStateDescription": "Für dieses Produkt existiert noch keine Cross Selling-Konfiguration.",
       "assignEmptyStateDescription": "Das Cross Selling muss zunächst gespeichert werden, bevor Du Produkte hinzufügen kannst.",
       "assignPlaceholder": "Durchsuche Produkte ..."
+    },
+    "featureSets": {
+      "cardTitle": "Wesentliche Merkmale",
+      "descriptionTitle": "Wesentliche Merkmale",
+      "descriptionBody": "Wesentliche Merkmale helfen Dir relevante Merkmale Deiner Produkte festzulegen. Diese Merkmale werden deutlich im Warenkorb und Checkout dargestellt.",
+      "configInformation": "Lege zuerst Vorlagen für {0} an und weise sie dann dem Produkt mittels des Auswahlfeldes unten hinzu.",
+      "linkFeatureSetsConfig": "Wesentliche Merkmale",
+      "templateSelectFieldLabel": "Vorlagen",
+      "templateSelectFieldPlaceholder": "Wähle eine oder mehrere Vorlagen aus..."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "product": {
+        "label": "Produkte"
+      }
     }
   }
 }

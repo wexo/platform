@@ -131,4 +131,53 @@ describe('Product: Test variants', () => {
         cy.get('.product-detail-configurator-option-label[title="L"]')
             .should('be.visible');
     });
+
+    it('@base @catalogue: test multidimensional variant with diversification', () => {
+        const page = new ProductPageObject();
+
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: '/api/v*/product/*',
+            method: 'patch'
+        }).as('saveData');
+
+        // Navigate to variant generator listing and start
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.get('.sw-product-detail__tab-variants').click();
+        cy.get(page.elements.loader).should('not.exist');
+        cy.get(`.sw-product-detail-variants__generated-variants__empty-state ${page.elements.ghostButton}`)
+            .should('be.visible')
+            .click();
+        cy.get('.sw-product-modal-variant-generation').should('be.visible');
+
+        // Create and verify multi-dimensional variant
+        page.generateVariants('Color', [0, 1, 2], 3);
+        cy.get('.sw-product-variants__generate-action').should('be.visible');
+        cy.get('.sw-product-variants__generate-action').click();
+        cy.get('.sw-product-modal-variant-generation').should('be.visible');
+        page.generateVariants('Size', [0, 1, 2], 9);
+        cy.get('.sw-product-variants-overview').should('be.visible');
+
+        // Activate diversification
+        cy.get('.sw-product-variants__configure-storefront-action').click();
+        cy.get('.sw-modal').should('be.visible');
+        cy.contains('Product listings').click();
+        cy.get('.sw-product-variants-delivery-listing-config-options').should('be.visible');
+        cy.contains('.sw-field__label', 'Color').click();
+        cy.contains('.sw-field__label', 'Size').click();
+        cy.get('.sw-modal .sw-button--primary').click();
+
+        // Verify in storefront
+        cy.visit('/');
+        cy.get('.product-box').its('length').should('be.gt', 8);
+        cy.get('.product-variant-characteristics').contains('Color: Red | Size: S');
+        cy.get('.product-variant-characteristics').contains('Color: Yellow | Size: M');
+        cy.get('.product-variant-characteristics').contains('Color: Green | Size: L');
+    });
 });

@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-product-list', {
     template,
 
-    inject: ['repositoryFactory', 'numberRangeService'],
+    inject: ['repositoryFactory', 'numberRangeService', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -24,7 +24,9 @@ Component.register('sw-product-list', {
             naturalSorting: true,
             isLoading: false,
             isBulkLoading: false,
-            total: 0
+            total: 0,
+            product: null,
+            cloning: false
         };
     },
 
@@ -53,12 +55,14 @@ Component.register('sw-product-list', {
             }).map(item => {
                 return {
                     property: `price-${item.isoCode}`,
-                    dataIndex: 'price',
+                    dataIndex: `price.${item.id}`,
                     label: `${item.name}`,
                     routerLink: 'sw.product.detail',
                     allowResize: true,
+                    currencyId: item.id,
                     visible: item.isSystemDefault,
-                    align: 'right'
+                    align: 'right',
+                    useCustomSort: true
                 };
             });
         }
@@ -69,6 +73,7 @@ Component.register('sw-product-list', {
             if (value > 25) {
                 return 'success';
             }
+
             if (value < 25 && value > 0) {
                 return 'warning';
             }
@@ -115,14 +120,14 @@ Component.register('sw-product-list', {
 
             return promise.then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-product.list.titleSaveSuccess'),
+                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-product.list.messageSaveSuccess', 0, { name: productName })
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
-                    message: this.$tc('global.notification.notificationSaveErrorMessage', 0, { entityName: productName })
+                    message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid')
                 });
             });
         },
@@ -136,41 +141,23 @@ Component.register('sw-product-list', {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
+            Shopware.State.commit('context/setApiLanguageId', languageId);
             this.getList();
         },
 
-        getCurrencyPriceByCurrencyId(itemId, currencyId) {
-            let foundPrice = {
+        getCurrencyPriceByCurrencyId(currencyId, prices) {
+            const priceForProduct = prices.find(price => price.currencyId === currencyId);
+
+            if (priceForProduct) {
+                return priceForProduct;
+            }
+
+            return {
                 currencyId: null,
                 gross: null,
                 linked: true,
                 net: null
             };
-
-            // check if products are loaded
-            if (!this.products) {
-                return foundPrice;
-            }
-
-            // find product for itemId
-            const foundProduct = this.products.find((item) => {
-                return item.id === itemId;
-            });
-
-            // find price from product with currency id
-            if (foundProduct) {
-                const priceForProduct = foundProduct.price.find((price) => {
-                    return price.currencyId === currencyId;
-                });
-
-                if (priceForProduct) {
-                    foundPrice = priceForProduct;
-                }
-            }
-
-            // return the price
-            return foundPrice;
         },
 
         getProductColumns() {
@@ -214,24 +201,27 @@ Component.register('sw-product-list', {
         },
 
         onDuplicate(referenceProduct) {
-            return this.numberRangeService.reserve('product').then((response) => {
-                return this.productRepository.clone(referenceProduct.id, Shopware.Context.api, {
-                    productNumber: response.number,
-                    name: `${referenceProduct.name} ${this.$tc('sw-product.general.copy')}`,
-                    productReviews: null,
-                    active: false
-                });
-            }).then((duplicate) => {
+            this.product = referenceProduct;
+            this.cloning = true;
+        },
+
+        onDuplicateFinish(duplicate) {
+            this.cloning = false;
+            this.product = null;
+
+            this.$nextTick(() => {
                 this.$router.push({ name: 'sw.product.detail', params: { id: duplicate.id } });
             });
         },
 
-        duplicationDisabledTitle(product) {
-            if (product.childCount > 0) {
-                return this.$tc('sw-product.general.variantDuplication');
-            }
+        onColumnSort(column) {
+            this.$refs.swProductGrid.loading = true;
 
-            return '';
+            const context = Object.assign({}, Shopware.Context.api);
+            context.currencyId = column.currencyId;
+
+            return this.$refs.swProductGrid.repository.search(this.$refs.swProductGrid.items.criteria, context)
+                .then(this.$refs.swProductGrid.applyResult);
         }
     }
 });

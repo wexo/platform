@@ -4,21 +4,21 @@
       "description": "Zusatzfelder hier verwalten.",
       "mainMenuItemGeneral": "Zusatzfelder",
       "placeholderSearchBar": "Durchsuche alle Zusatzfelder ...",
-      "tooltipTechnicalName": "Der technische Name muss eindeutig sein und kann später nicht mehr verändert werden."
+      "tooltipTechnicalName": "Der technische Name muss eindeutig sein und kann später nicht mehr verändert werden.",
+      "tooltipType": "Der Typ kann später nicht mehr verändert werden."
     },
     "set": {
       "list": {
         "textHeadline": "Zusatzfelder",
-        "titleModalDelete": "Set löschen",
         "textDeleteConfirm": "Möchtest Du das Set \"{name}\" wirklich löschen?",
         "buttonCancel": "Abbrechen",
         "buttonAdd": "Set anlegen",
         "columnName": "Label",
         "contextMenuEdit": "Bearbeiten",
         "buttonDelete": "Löschen",
-        "titleDeleteSuccess": "Erfolg",
         "messageDeleteSuccess": "Das Set \"{name}\" wurde erfolgreich gelöscht.",
-        "messageEmpty": "Noch keine Zusatzfelder."
+        "messageEmpty": "Noch keine Zusatzfelder.",
+        "helpTextGlobalSet": "Dieses Set ist global und kann nicht verändert werden."
       },
       "detail": {
         "labelTechnicalName": "Technischer Name",
@@ -29,15 +29,14 @@
         "labelName": "Set Name",
         "placeholderName": "Name eingeben ...",
         "labelCheckboxTranslated": "In allen Administrationssprachen pflegen",
-        "titleSaveSuccess": "Zusatzfeld-Set",
         "messageSaveSuccess": "Das Set \"{name}\" wurde erfolgreich gespeichert.",
         "messageCustomFieldsEmpty": "Noch keine Zusatzfelder.",
         "addCustomField": "Neues Zusatzfeld",
         "buttonApply": "Speichern",
         "labelEntities": "Verwenden für",
         "placeholderEntities": "Verwendung hinzufügen ...",
-        "titleNameNotUnique": "Fehler",
-        "messageNameNotUnique": "Der technische Name existiert bereits."
+        "messageNameNotUnique": "Der technische Name existiert bereits.",
+        "emptyStateDescription": "Speichere das Set bevor du Zusatzfelder hinzfügen kannst."
       }
     },
     "customField": {
@@ -82,7 +81,9 @@
         "labelCustomFieldPosition": "Position",
         "contextMenuCustomFieldResetDelete": "Wiederherstellen",
         "contextMenuCustomFieldView": "Editieren",
-        "contextMenuCustomFieldDelete": "Löschen"
+        "contextMenuCustomFieldDelete": "Löschen",
+        "titleDeleteAction": "Zusatzfeld löschen | Zusatzfelder löschen",
+        "textDeleteActionConfirmation": "Bist du sicher, dass du dieses Zusatzfeld löschen möchtest? | Bist du sicher, dass du diese {count} Zusatzfelder löschen möchtest?"
       }
     },
     "types": {
@@ -92,8 +93,8 @@
       "media": "Medium",
       "date": "Datum / Zeit",
       "checkbox": "Checkbox",
-      "switch": "Aktiv/Inaktiv Schalter",
-      "textEditor": "Text Editor",
+      "switch": "Aktiv-/Inaktiv-Schalter",
+      "textEditor": "Text-Editor",
       "string": "Text",
       "int": "Zahl",
       "colorpicker": "Farbauswahl"

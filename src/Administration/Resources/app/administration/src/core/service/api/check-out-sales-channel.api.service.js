@@ -5,6 +5,7 @@ import ApiService from '../api.service';
  * Uses the _proxy endpoint of the admin api to connect to the sales-channel-api endpoint cart
  * @class
  * @extends ApiService
+ * @deprecated tag:v6.4.0 - Use CheckoutStoreService
  */
 class CheckOutSalesChannelService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'checkout') {
@@ -13,7 +14,7 @@ class CheckOutSalesChannelService extends ApiService {
     }
 
     checkout(salesChannelId, contextToken, additionalParams = {}, additionalHeaders = {}) {
-        const route = `_proxy/sales-channel-api/${salesChannelId}/v1/checkout/order`;
+        const route = `_proxy/sales-channel-api/${salesChannelId}/v${this.getApiVersion()}/checkout/order`;
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),
             'sw-context-token': contextToken

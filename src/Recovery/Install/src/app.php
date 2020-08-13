@@ -411,6 +411,7 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
             'name' => $_SESSION['parameters']['c_config_shopName'],
             'locale' => $_SESSION['parameters']['c_config_shop_language'],
             'currency' => $_SESSION['parameters']['c_config_shop_currency'],
+            'additionalCurrencies' => empty($_SESSION['parameters']['c_available_currencies']) ? null : $_SESSION['parameters']['c_available_currencies'],
             'country' => $_SESSION['parameters']['c_config_shop_country'],
             'email' => $_SESSION['parameters']['c_config_mail'],
             'host' => $_SERVER['HTTP_HOST'],

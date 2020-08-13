@@ -8,6 +8,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\ListingPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
@@ -264,6 +266,11 @@ class ProductEntity extends Entity
     protected $mainVariantId;
 
     /**
+     * @var array
+     */
+    protected $variation = [];
+
+    /**
      * @var TaxEntity|null
      */
     protected $tax;
@@ -322,6 +329,11 @@ class ProductEntity extends Entity
      * @var CategoryCollection|null
      */
     protected $categories;
+
+    /**
+     * @var CustomFieldSetCollection|null
+     */
+    protected $customFieldSets;
 
     /**
      * @var TagCollection|null
@@ -412,6 +424,11 @@ class ProductEntity extends Entity
      * @var ProductCrossSellingAssignedProductsCollection|null
      */
     protected $crossSellingAssignedProducts;
+
+    /**
+     * @var ProductFeatureSetCollection|null
+     */
+    protected $featureSets;
 
     public function __construct()
     {
@@ -919,6 +936,16 @@ class ProductEntity extends Entity
         $this->categories = $categories;
     }
 
+    public function getCustomFieldSets(): ?CustomFieldSetCollection
+    {
+        return $this->customFieldSets;
+    }
+
+    public function setCustomFieldSets(CustomFieldSetCollection $customFieldSets): void
+    {
+        $this->customFieldSets = $customFieldSets;
+    }
+
     public function getTags(): ?TagCollection
     {
         return $this->tags;
@@ -1089,6 +1116,16 @@ class ProductEntity extends Entity
         $this->mainVariantId = $mainVariantId;
     }
 
+    public function getVariation(): array
+    {
+        return $this->variation;
+    }
+
+    public function setVariation(array $variation): void
+    {
+        $this->variation = $variation;
+    }
+
     public function getAvailableStock(): ?int
     {
         return $this->availableStock;
@@ -1217,6 +1254,16 @@ class ProductEntity extends Entity
     public function setCrossSellingAssignedProducts(ProductCrossSellingAssignedProductsCollection $crossSellingAssignedProducts): void
     {
         $this->crossSellingAssignedProducts = $crossSellingAssignedProducts;
+    }
+
+    public function getFeatureSets(): ?ProductFeatureSetCollection
+    {
+        return $this->featureSets;
+    }
+
+    public function setFeatureSets(ProductFeatureSetCollection $featureSets): void
+    {
+        $this->featureSets = $featureSets;
     }
 
     public function getApiAlias(): string

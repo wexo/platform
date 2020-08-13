@@ -1,3 +1,7 @@
+{# activate load per default. If it is not activated only a data-src is set instead of the src tag. #}
+{% if load is not defined %}
+    {% set load = true %}
+{% endif %}
 {# uses cms block column count and all available thumbnails to determine the correct image size for the current viewport #}
 {% if media.thumbnails|length > 0 %}
     {# activate load per default. If it is not activated only a data-src is set instead of the src tag. #}
@@ -58,4 +62,3 @@
     {% endif %}
     {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value }}"{% endif %}{% endfor %}
 />
-

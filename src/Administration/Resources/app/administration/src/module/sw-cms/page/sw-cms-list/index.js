@@ -1,7 +1,7 @@
 import template from './sw-cms-list.html.twig';
 import './sw-cms-list.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-cms-list', {
@@ -44,10 +44,6 @@ Component.register('sw-cms-list', {
 
         defaultFolderRepository() {
             return this.repositoryFactory.create('media_default_folder');
-        },
-
-        languageStore() {
-            return StateDeprecated.getStore('language');
         },
 
         columnConfig() {
@@ -164,7 +160,7 @@ Component.register('sw-cms-list', {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
+            Shopware.State.commit('context/setApiLanguageId', languageId);
             this.resetList();
         },
 
@@ -278,7 +274,7 @@ Component.register('sw-cms-list', {
         },
 
         deleteCmsPage(page) {
-            const titleDeleteError = this.$tc('sw-cms.components.cmsListItem.notificationDeleteErrorTitle');
+            const titleDeleteError = this.$tc('global.default.error');
             const messageDeleteError = this.$tc('sw-cms.components.cmsListItem.notificationDeleteErrorMessage');
 
             this.isLoading = true;

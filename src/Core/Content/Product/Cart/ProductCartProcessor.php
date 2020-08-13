@@ -44,14 +44,21 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
      */
     private $calculator;
 
+    /**
+     * @var ProductFeatureBuilder
+     */
+    private $featureBuilder;
+
     public function __construct(
         ProductGatewayInterface $productGateway,
         QuantityPriceCalculator $calculator,
-        ProductPriceDefinitionBuilderInterface $priceDefinitionBuilder
+        ProductPriceDefinitionBuilderInterface $priceDefinitionBuilder,
+        ProductFeatureBuilder $featureBuilder
     ) {
         $this->productGateway = $productGateway;
         $this->priceDefinitionBuilder = $priceDefinitionBuilder;
         $this->calculator = $calculator;
+        $this->featureBuilder = $featureBuilder;
     }
 
     public function collect(
@@ -81,6 +88,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             // enrich all products in original cart
             $this->enrich($original, $lineItem, $data, $context, $behavior);
         }
+
+        $this->featureBuilder->prepare($lineItems, $data, $context);
     }
 
     /**
@@ -146,8 +155,11 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             }
 
             $lineItem->setPrice($this->calculator->calculate($definition, $context));
+
             $toCalculate->add($lineItem);
         }
+
+        $this->featureBuilder->add($lineItems, $data, $context);
     }
 
     private function enrich(
@@ -227,7 +239,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $lineItem->setQuantityInformation($quantityInformation);
 
-        $lineItem->replacePayload([
+        $payload = [
             'isCloseout' => $product->getIsCloseout(),
             'customFields' => $product->getCustomFields(),
             'createdAt' => $product->getCreatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -243,7 +255,11 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'propertyIds' => $product->getPropertyIds(),
             'optionIds' => $product->getOptionIds(),
             'options' => $this->getOptions($product),
-        ]);
+        ];
+
+        $payload['options'] = $product->getVariation();
+
+        $lineItem->replacePayload($payload);
     }
 
     private function getNotCompleted(CartDataCollection $data, array $lineItems): array
